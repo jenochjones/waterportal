@@ -1,0 +1,125 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: #000000;
+}
+
+h2 {
+  color: white;
+  font-family: "American Typewriter";
+  font-size: 15pt;
+}
+
+#background-image {
+  /* The image used */
+  background-image: url('images/underwater.jpeg');
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#mannings-equation {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+#mannings-values {
+  width: 30%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#solve-for-container {
+  width: 100%;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+#solve-for {
+  width: 50%;
+  height: 20px;
+  text-align-last: center;
+  margin: 5px;
+}
+
+#units {
+  width: 20%;
+  height: 20px;
+  text-align-last: center;
+  margin: 5px;
+}
+
+.value-slider-box {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider {
+  width: 75%;
+}
+
+.slider-box {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-value {
+  width: 60px;
+}
+
+#mannings-graph-box {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+#mannings-graph {
+  width:70%;
+  height:600px;
+}
+
+#mannings-graph-values {
+  width: 10%;
+  height: 600px;
+  padding: 10px;
+}
+
+#mannings-x-y-coords {
+  width: 100%;
+  height: 550px;
+  border-radius: 0;
+}
+
+#mannings-plot-button {
+  width: 110%;
+  height: 40px;
+  border-radius: 0;
+  color: white;
+  background-color: #12436a;
+}
