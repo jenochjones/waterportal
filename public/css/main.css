@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+b {
+    color: white;
+    padding: 10px;
+}
+
+label {
+    color: white;
+}
+
+.top-nav-bar {
+    width: 100%;
+    height: 50px;
+    margin: 0;
+    padding: 0;
+    background-color: #32322c;
+    display: flex;
+    flex-direction: row;
+}
+
+.top-nav-bar ul {
+    margin: 0;
+    padding: 0px 5px 0px 5px;
+    height: 50px;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+}
+
+.top-nav-bar ul:hover {
+    background-color: #1f1f1c;
+}
+
+.top-nav-bar a {
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+}
+
+h2 {
+  color: white;
+  font-family: "American Typewriter";
+  font-size: 15pt;
+}
