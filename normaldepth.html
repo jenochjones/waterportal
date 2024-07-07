@@ -1,0 +1,66 @@
+<!-- Normal and Critical Depth Finder TOOL -->
+<div id="normal-critical-depth" class="tool">
+    <div style="display: flex; flex-direction: row; width: 100%">
+      <div style="display: flex; flex-direction: column;  width: 50%">
+        <span>
+          <label>Units</label>
+            <select id="nc-units">
+              <option>Metric</option>
+              <option>U.S. Customary</option>
+            </select>
+        </span>
+        <span>
+          <label>Channel Type</label>
+            <select id="nc-channel-type" onchange="setChannelType()">
+              <option>Trapezoidal</option>
+              <option>Rectangular</option>
+              <option>Triangular</option>
+              <option>Circular</option>
+              <option>Cross Section</option>
+            </select>
+          </span>
+        <span>
+          <label>Side Slope 1 (Z1)</label>
+          <input id="side-slope1">
+        </span>
+        <span>
+          <label>Side Slope 2 (Z2)</label>
+          <input id="side-slope2">
+        </span>
+        <span>
+          <label>Channel Width (B)</label>
+          <input id="channel-width">
+        </span>
+        <span>
+          <label>Pipe Diameter (D)</label>
+          <input id="pipe-diameter" disabled>
+        </span>
+        <span>
+          <label>Longitudinal Slope</label>
+          <input id="longitudinal-slope">
+        </span>
+        <span>
+          <label>Manning's Roughness (n)</label>
+          <input id="mannings-roughness">
+        </span>
+        <span>
+          <input id="enter-flow-radio" type="radio" name="flow" style="float: left"
+                 onclick="flowVsDepth()" checked>
+          <label>Enter Flow</label>
+          <input id="enter-flow">
+        </span>
+        <span>
+          <input id="enter-depth-radio" type="radio" name="flow" style="float: left"
+                 onclick="flowVsDepth()">
+          <label>Enter Depth</label>
+          <input id="enter-depth" disabled>
+        </span>
+        <button id="normal-critical-result" onclick="normalDepth()" style="width: 90%; margin: 10px">Get Results
+        </button>
+      </div>
+      <div id="nc-result-div" style="width: 50%; height: 100%;">
+
+      </div>
+    </div>
+  </div>
+  <!------------------------------------------------------------->

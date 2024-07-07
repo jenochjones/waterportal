@@ -1,20 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>JEJ</title>
+  <head>
+    <meta charset="UTF-8">
+    <title>Water Engineering Portal</title>
 
-  <link rel="stylesheet" href="public/css/main.css">
-  <link rel="stylesheet" href="public/css/index.css">
-  <script type="text/javascript" src="public/js/index.js"></script>
-</head>
-<body>
-  <div class="top-nav-bar">
-    <ul><a href="index.html">Home</a></ul>
-    <ul><a href="engineering.html">Engineering Toolbox</a></ul>
-    <ul><a href="mannings.html">Manning's N Calculator</a></ul>
-    <ul><a href="https://jenochjones.github.io/minesweeper/">Minesweeper</a></ul>
-    <ul><a href="https://jenochjones.github.io/IS542/">The Scriptures Mapped</a></ul>
-  </div>
-</body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="public/css/linearinterpolation.css">
+    <link rel="stylesheet" href="public/css/normaldepth.css">
+    <link rel="stylesheet" href="public/css/main.css">
+
+    <script type="module" src="public/js/main.js"></script>
+  </head>
+  <body>
+    <div id="main-div">
+      <div id="nav-bar">
+        <!-- Copy this for an additional nav bar item -->
+        <div class="nav-item" data-page="mannings.html">
+          <b class="nav-item-text">Manning's Calculator</b>
+        </div>
+        <!----------------------------------------------->
+        <div class="nav-item" data-page="normaldepth.html">
+          <b class="nav-item-text">Normal/Critical Depth</b>
+        </div>
+        <div class="nav-item" data-page="linearinterpolation.html">
+          <b class="nav-item-text">Linear Interpolation</b>
+        </div>
+        <div class="nav-item" data-page="mannings.html">
+          <b class="nav-item-text">Whiteboard</b>
+        </div>
+      </div>
+      <div id="add-bar"></div>
+      <div id="mainscreen-div"></div>
+    </div>
+  </body>
 </html>
