@@ -8,6 +8,10 @@ let linearInterpolation = function () {
     $('#interp-result').empty().append(Math.round(y2 * 1000) / 1000);
 }
 
+let setUpLinearInterpolation = function () {
+    document.getElementById('linear-interp-result').addEventListener('click', linearInterpolation);
+};
+
 export {
-    linearInterpolation
+    setUpLinearInterpolation
 }

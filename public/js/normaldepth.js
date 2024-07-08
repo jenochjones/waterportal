@@ -1,8 +1,20 @@
-let showNormalAndCriticalDepth = function () {
-    $('.tool').each(function () {
-        $(this).css('display', 'none');
-    });
-    $('#normal-critical-depth').css('display', 'flex');
+let setUnits = function () {
+    let lableList;
+
+    if (document.getElementById('nc-units').value === 'U.S. Customary') {
+        lableList = ['Units', 'Channel Type', 'Side Slope 1 (h:v)', 'Side Slope 2 (h:v)', 'Channel Width (ft)', 'Pipe Diameter (ft)', 'Longitudinal Slope', `Manning's Roughness`, 'Enter Flow (cfs)', 'Enter Depth (ft)'];
+    } else {
+        lableList = ['Units', 'Channel Type', 'Side Slope 1 (h:v)', 'Side Slope 2 (h:v)', 'Channel Width (m)', 'Pipe Diameter (m)', 'Longitudinal Slope', `Manning's Roughness`, 'Enter Flow (cms)', 'Enter Depth (m)'];
+    }
+
+    const parentElement = document.getElementById('normal-critical-depth');
+    if (!parentElement) return;
+
+    const labels = parentElement.getElementsByTagName('label');
+
+    for (let i = 0; i < labels.length && i < lableList.length; i++) {
+        labels[i].textContent = lableList[i];
+    }
 };
 
 let setChannelType = function () {
@@ -233,12 +245,14 @@ let setResults = function (flow) {
     $('#nc-result-div').empty().append(html);
 };
 
-//////////////////////////Hide All/////////////////////////////////
+let setUpNormalDepth = function () {
+    document.getElementById('nc-units').addEventListener('change', setUnits);
+    document.getElementById('nc-channel-type').addEventListener('change', setChannelType);
+    document.getElementById('enter-flow-radio').addEventListener('click', flowVsDepth);
+    document.getElementById('enter-depth-radio').addEventListener('click', flowVsDepth);
+    document.getElementById('normal-critical-result').addEventListener('click', normalDepth);
+};
 
-function showNone() {
-    $('.tool').each(function () {
-        $(this).css('display', 'none');
-    });
+export {
+    setUpNormalDepth
 }
-
-////////////////////////End Normal Critical 2/////////////////////////
