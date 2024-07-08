@@ -1,8 +1,10 @@
 import {setUpLinearInterpolation} from './linearinterpolation.js';
 import {setUpNormalDepth} from './normaldepth.js';
 import {setUpWhiteboard} from './whiteboard.js';
+import {setUpMannings} from './mannings.js';
 
 const htmlElements = {
+    'mannings.html': setUpMannings,
     'linearinterpolation.html': setUpLinearInterpolation,
     'normaldepth.html': setUpNormalDepth,
     'whiteboard.html': setUpWhiteboard,
@@ -36,5 +38,5 @@ ready(function () {
     });
 
     // Load the default page
-    loadPage('normaldepth.html');
+    loadPage('mannings.html');
 });
