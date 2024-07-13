@@ -5,7 +5,7 @@
                 <h2>Solve For</h2>
                 <div id="solve-for-container">
                     <select id="solve-for">
-                        <option>Water Surface Elevation</option>
+                        <option>Water Depth</option>
                         <option>Flow</option>
                         <option>Manning's N</option>
                         <option>Channel Slope</option>
@@ -17,31 +17,31 @@
                 </div>
             </div>
             <div class="value-slider-box">
-                <h2>Water Surface Elevation</h2>
+                <h2 id="water-depth">Water Depth (ft)</h2>
                 <div class="slider-box">
-                    <input type="range" value="4" step="0.01" class="slider" id="mannings-wse">
-                    <input type="number" id="mannings-wse-value" class="slider-value" value="4">
+                    <input type="range" value="4" step="0.01" class="slider" id="mannings-wse" disabled>
+                    <input type="number" id="mannings-wse-value" class="slider-value" value="1.5" disabled>
                 </div>
             </div>
             <div class="value-slider-box">
-                <h2>Flow</h2>
+                <h2 id="flow">Flow (cfs)</h2>
                 <div class="slider-box">
-                    <input type="range" value="5000" step="0.01" class="slider" id="mannings-flow" onchange="setSliderValue(this)">
-                    <input type="number" id="mannings-flow-value" class="slider-value" value="5000">
+                    <input type="range" value="90" step="0.01" class="slider" id="mannings-flow">
+                    <input type="number" id="mannings-flow-value" class="slider-value" value="90">
                 </div>
             </div>
             <div class="value-slider-box">
-                <h2>Manning's N</h2>
+                <h2 id="mannings">Manning's N</h2>
                 <div class="slider-box">
-                    <input type="range" value="0.035" step="0.0001" min="0" max="1" class="slider" id="mannings-n" onchange="setSliderValue(this)">
-                    <input type="number" id="mannings-n-value" class="slider-value" value="0.035">
+                    <input type="range" value="0.035" step="0.0001" min="0" max="1" class="slider" id="mannings-n">
+                    <input type="number" id="mannings-n-value" class="slider-value" value="0.035" step="0.001" min="0" max="1" >
                 </div>
             </div>
             <div class="value-slider-box">
-                <h2>Channel Slope</h2>
+                <h2 id="channel-slope">Channel Slope (ft/ft)</h2>
                 <div class="slider-box">
-                    <input type="range" value="0.018989987" step="0.0001" min="0" max="1" class="slider" id="mannings-slope" onchange="setSliderValue(this)">
-                    <input type="number" id="mannings-slope-value" class="slider-value" value="0.018989987">
+                    <input type="range" value="0.018989987" step="0.0001" min="0" max="1" class="slider" id="mannings-slope">
+                    <input type="number" id="mannings-slope-value" class="slider-value" value="0.018989987" step="0.001" min="0" max="1" >
                 </div>
             </div>
         </div>
