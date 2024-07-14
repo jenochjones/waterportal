@@ -22,47 +22,54 @@ let setChannelType = function () {
     let sideSlope2 = true;
     let channelWidth = true;
     let pipeDiameter = true;
-    if ($('#nc-channel-type').val() == 'Trapezoidal') {
+    const channelType = document.getElementById('nc-channel-type').value;
+
+    if (channelType === 'Trapezoidal') {
         sideSlope1 = false;
         sideSlope2 = false;
         channelWidth = false;
-    } else if ($('#nc-channel-type').val() == 'Rectangular') {
+    } else if (channelType === 'Rectangular') {
         channelWidth = false;
-    } else if ($('#nc-channel-type').val() == 'Triangular') {
+    } else if (channelType === 'Triangular') {
         sideSlope1 = false;
         sideSlope2 = false;
-    } else if ($('#nc-channel-type').val() == 'Circular') {
+    } else if (channelType === 'Circular') {
         pipeDiameter = false;
-    } else if ($('#nc-channel-type').val() == 'Cross Section') {
+    } else if (channelType === 'Cross Section') {
         alert('define a cross section')
     } else {
         alert('Invalid Channel Shape')
     }
-        $('#side-slope1').prop( "disabled", sideSlope1 ).val('');
-        $('#side-slope2').prop( "disabled", sideSlope2 ).val('');
-        $('#channel-width').prop( "disabled", channelWidth ).val('');
-        $('#pipe-diameter').prop( "disabled", pipeDiameter ).val('');
+
+    document.getElementById('side-slope1').disabled = sideSlope1;
+    document.getElementById('side-slope2').disabled = sideSlope2;
+    document.getElementById('channel-width').disabled = channelWidth;
+    document.getElementById('pipe-diameter').disabled = pipeDiameter;
 };
 
 let flowVsDepth = function () {
-    if ($('#enter-depth').prop('disabled') == true) {
-        $('#enter-depth').prop('disabled', false);
-        $('#enter-flow').prop('disabled', true).val('');
+    const enterDepth = document.getElementById('enter-depth');
+    const enterFlow = document.getElementById('enter-flow');
+    if (enterDepth.disabled) {
+        enterDepth.disabled = false;
+        enterFlow.disabled = true;
+        enterFlow.value = '';
     } else {
-        $('#enter-depth').prop('disabled', true).val('');
-        $('#enter-flow').prop('disabled', false);
+        enterDepth.disabled = true;
+        enterDepth.value = '';
+        enterFlow.disabled = false;
     }
 };
 
 let getUserInput = function () {
     let i;
-    let z1 = parseFloat($('#side-slope1').val());
-    let z2 = parseFloat($('#side-slope2').val());
-    let b = parseFloat($('#channel-width').val());
-    let d = parseFloat($('#pipe-diameter').val());
-    let lo = parseFloat($('#longitudinal-slope').val());
-    let n = parseFloat($('#mannings-roughness').val());
-    if ($('#nc-units').val() == 'Metric') {
+    let z1 = parseFloat(document.getElementById('side-slope1').value);
+    let z2 = parseFloat(document.getElementById('side-slope2').value);
+    let b = parseFloat(document.getElementById('channel-width').value);
+    let d = parseFloat(document.getElementById('pipe-diameter').value);
+    let lo = parseFloat(document.getElementById('longitudinal-slope').value);
+    let n = parseFloat(document.getElementById('mannings-roughness').value);
+    if (document.getElementById('nc-units').value == 'Metric') {
         i = 1;
     } else {
         i = 1.49;
@@ -76,42 +83,44 @@ let getUserInput = function () {
         manningsN: n,
         i: i,
     };
-    return flowValues
+    return flowValues;
 };
 
 let solveForAandR = function (flowValues) {
     let a, r, theta, flow, t, hydraulicDepth, wettedPerimeter;
-    if ($('#nc-channel-type').val() == 'Trapezoidal') {
+    const channelType = document.getElementById('nc-channel-type').value;
+
+    if (channelType === 'Trapezoidal') {
         a = (flowValues['base'] + (flowValues['slope1'] * flowValues['depth'] / 2) + (flowValues['slope2'] * flowValues['depth'] / 2)) * flowValues['depth'];
         wettedPerimeter = (flowValues['base'] + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope1'], 2) + 1) + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope2'], 2) + 1));
         r = a / wettedPerimeter;
         t = flowValues['base'] + flowValues['slope1'] * flowValues['depth'] + flowValues['slope2'] * flowValues['depth'];
         hydraulicDepth = a / t;
-    } else if ($('#nc-channel-type').val() == 'Rectangular') {
+    } else if (channelType === 'Rectangular') {
         a = flowValues['base'] * flowValues['depth'];
         wettedPerimeter = (2 * flowValues['depth'] + flowValues['base']);
         r = a / wettedPerimeter;
         t = flowValues['base'];
         hydraulicDepth = a / t;
-    } else if ($('#nc-channel-type').val() == 'Triangular') {
+    } else if (channelType === 'Triangular') {
         a = ((flowValues['slope1'] * flowValues['depth'] / 2) + (flowValues['slope2'] * flowValues['depth'] / 2)) * flowValues['depth'];
         wettedPerimeter = (flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope1'], 2) + 1) + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope2'], 2) + 1));
         r = a / wettedPerimeter;
         t = flowValues['depth'] * (flowValues['slope1'] + flowValues['slope2']);
         hydraulicDepth = a / t;
-    } else if ($('#nc-channel-type').val() == 'Circular') {
+    } else if (channelType === 'Circular') {
         theta = 2 * (Math.PI - Math.acos((2 * flowValues['depth'] / flowValues['diameter']) - 1));
         wettedPerimeter = theta * flowValues['diameter'] / 2;
         a = (theta - Math.sin(theta)) * Math.pow(flowValues['diameter'], 2) / 8;
         r = (1 - Math.sin(theta) / theta) * flowValues['diameter'] / 4;
         t = 2 * Math.sqrt(flowValues['depth'] * (flowValues['diameter'] - flowValues['depth']));
         hydraulicDepth = ((theta - Math.sin(theta)) / (Math.sin(theta / 2))) * flowValues['diameter'] / 8;
-    } else if ($('#nc-channel-type').val() == 'Cross Section') {
+    } else if (channelType === 'Cross Section') {
 
     }
-    flow = solveManningsForFlow (a, r, flowValues['i'], flowValues['manningsN'], flowValues['baseSlope']);
+    flow = solveManningsForFlow(a, r, flowValues['i'], flowValues['manningsN'], flowValues['baseSlope']);
     let velocity = flow / a;
-    console.log(flow)
+    console.log(flow);
     let newFlowValues = {
         flow: flow,
         slope1: flowValues['slope1'],
@@ -128,24 +137,25 @@ let solveForAandR = function (flowValues) {
         hydraulicRadius: r,
         topWidth: t,
         hydraulicDepth: hydraulicDepth,
-    }
+    };
     return newFlowValues;
 };
 
 let solveManningsForFlow = function (a, r, i, n, s) {
     let flow = (i / n) * a * Math.pow(r, 2/3) * Math.sqrt(s);
-    return flow
+    return flow;
 };
 
 let normalDepth = function () {
+    debugger
     let firstFlowValues = getUserInput();
     let allValues = {};
-    if ($('#enter-depth-radio').prop('checked') == true) {
-        firstFlowValues['depth'] = parseFloat($('#enter-depth').val());
+    if (document.getElementById('enter-depth-radio').checked) {
+        firstFlowValues['depth'] = parseFloat(document.getElementById('enter-depth').value);
         allValues = solveForAandR(firstFlowValues);
-        $('#enter-flow').val(Math.round(allValues['flow'] * 1000) / 1000);
-    } else if ($('#enter-flow-radio').prop('checked') == true) {
-        let finalFlow = parseFloat($('#enter-flow').val());
+        document.getElementById('enter-flow').value = Math.round(allValues['flow'] * 1000) / 1000;
+    } else if (document.getElementById('enter-flow-radio').checked) {
+        let finalFlow = parseFloat(document.getElementById('enter-flow').value);
         let yn = 0;
         let ynOld = 0;
         let jumpVal = 20;
@@ -162,10 +172,10 @@ let normalDepth = function () {
             allValues = solveForAandR(firstFlowValues);
             tryFlow = allValues['flow'];
         }
-        $('#enter-depth').val(Math.round(yn * 1000) / 1000);
+        document.getElementById('enter-depth').value = Math.round(yn * 1000) / 1000;
     }
     let criticalValues = findCriticalDepth(allValues, allValues['flow']);
-    allValues['depth'] = firstFlowValues['depth']
+    allValues['depth'] = firstFlowValues['depth'];
     allValues['criticalDepth'] = criticalValues['depth'];
     allValues['criticalVelocity'] = criticalValues['velocity'];
     allValues['criticalArea'] = criticalValues['area'];
@@ -176,7 +186,7 @@ let normalDepth = function () {
 let findCriticalDepth = function (criticalFlowValues, flow) {
     let g;
     let newCriticalFlowValues = {};
-    if ($('#nc-units').val() == 'Metric') {
+    if (document.getElementById('nc-units').value == 'Metric') {
         g = 9.81;
     } else {
         g = 32.2;
@@ -186,7 +196,44 @@ let findCriticalDepth = function (criticalFlowValues, flow) {
     let ycOld = 0;
     let tryFlowValue = 1;
     let jumpVal = 20;
-    while (tryFlowValue > criticalFlowValue + 0.00001 || tryFlowValue < criticalFlowValue - 0.00001) {
+    let upperBounds = 1000;
+    let lowerBounds = 0;
+    
+
+    if (channelType === 'Trapezoidal') {
+        a = (flowValues['base'] + (flowValues['slope1'] * flowValues['depth'] / 2) + (flowValues['slope2'] * flowValues['depth'] / 2)) * flowValues['depth'];
+        wettedPerimeter = (flowValues['base'] + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope1'], 2) + 1) + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope2'], 2) + 1));
+        r = a / wettedPerimeter;
+        t = flowValues['base'] + flowValues['slope1'] * flowValues['depth'] + flowValues['slope2'] * flowValues['depth'];
+        hydraulicDepth = a / t;
+    } else if (channelType === 'Rectangular') {
+        a = flowValues['base'] * flowValues['depth'];
+        wettedPerimeter = (2 * flowValues['depth'] + flowValues['base']);
+        r = a / wettedPerimeter;
+        t = flowValues['base'];
+        hydraulicDepth = a / t;
+    } else if (channelType === 'Triangular') {
+        a = ((flowValues['slope1'] * flowValues['depth'] / 2) + (flowValues['slope2'] * flowValues['depth'] / 2)) * flowValues['depth'];
+        wettedPerimeter = (flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope1'], 2) + 1) + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope2'], 2) + 1));
+        r = a / wettedPerimeter;
+        t = flowValues['depth'] * (flowValues['slope1'] + flowValues['slope2']);
+        hydraulicDepth = a / t;
+    } else if (channelType === 'Circular') {
+        theta = 2 * (Math.PI - Math.acos((2 * flowValues['depth'] / flowValues['diameter']) - 1));
+        wettedPerimeter = theta * flowValues['diameter'] / 2;
+        a = (theta - Math.sin(theta)) * Math.pow(flowValues['diameter'], 2) / 8;
+        r = (1 - Math.sin(theta) / theta) * flowValues['diameter'] / 4;
+        t = 2 * Math.sqrt(flowValues['depth'] * (flowValues['diameter'] - flowValues['depth']));
+        hydraulicDepth = ((theta - Math.sin(theta)) / (Math.sin(theta / 2))) * flowValues['diameter'] / 8;
+    } else if (channelType === 'Cross Section') {
+
+    }
+
+
+
+
+
+    while (Math.abs(tryFlowValue - criticalFlowValue) <= 0.00001) {
         if (tryFlowValue > criticalFlowValue) {
             jumpVal = jumpVal / 2;
             yc = ycOld + jumpVal;
@@ -201,17 +248,17 @@ let findCriticalDepth = function (criticalFlowValues, flow) {
     newCriticalFlowValues['flow'] = flow;
     newCriticalFlowValues['velocity'] = flow / newCriticalFlowValues['area'];
     newCriticalFlowValues['criticalSlope'] = findCriticalSlope(newCriticalFlowValues);
-    return newCriticalFlowValues
+    return newCriticalFlowValues;
 };
 
 let findCriticalSlope = function (valuesForCriticalSlope) {
-    let criticalSlope = Math.sqrt(valuesForCriticalSlope['flow'] * valuesForCriticalSlope['manningsN'] / (valuesForCriticalSlope['i'] * Math.pow(valuesForCriticalSlope['hydraulicRadius'], 2/3) * valuesForCriticalSlope['area']))
-    return criticalSlope
+    let criticalSlope = Math.sqrt(valuesForCriticalSlope['flow'] * valuesForCriticalSlope['manningsN'] / (valuesForCriticalSlope['i'] * Math.pow(valuesForCriticalSlope['hydraulicRadius'], 2/3) * valuesForCriticalSlope['area']));
+    return criticalSlope;
 };
 
 let setResults = function (flow) {
     let fut, dut, vut, aut;
-    if ($('#nc-units').val() == 'Metric') {
+    if (document.getElementById('nc-units').value == 'Metric') {
         fut = 'm<sup>3</sup>/s';
         dut = 'm';
         vut = 'm/s<sup>2</sup>';
@@ -242,7 +289,7 @@ let setResults = function (flow) {
     } else {
         html += `<p>Flow is Critical</p>`;
     }
-    $('#nc-result-div').empty().append(html);
+    document.getElementById('nc-result-div').innerHTML = html;
 };
 
 let setUpNormalDepth = function () {
