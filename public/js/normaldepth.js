@@ -185,68 +185,37 @@ let normalDepth = function () {
 
 let findCriticalDepth = function (criticalFlowValues, flow) {
     let g;
-    let newCriticalFlowValues = {};
+    let newCriticalFlowValues = { ...criticalFlowValues };
+    const channelType = document.getElementById('nc-channel-type').value;
+    debugger
     if (document.getElementById('nc-units').value == 'Metric') {
         g = 9.81;
     } else {
         g = 32.2;
     }
-    let criticalFlowValue = Math.pow(criticalFlowValues['flow'], 2) / g;
-    let yc = 0;
-    let ycOld = 0;
-    let tryFlowValue = 1;
-    let jumpVal = 20;
+    
+    let fr = newCriticalFlowValues['velocity'] / Math.sqrt(g * newCriticalFlowValues['hydraulicDepth']);
     let upperBounds = 1000;
     let lowerBounds = 0;
-    
 
-    if (channelType === 'Trapezoidal') {
-        a = (flowValues['base'] + (flowValues['slope1'] * flowValues['depth'] / 2) + (flowValues['slope2'] * flowValues['depth'] / 2)) * flowValues['depth'];
-        wettedPerimeter = (flowValues['base'] + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope1'], 2) + 1) + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope2'], 2) + 1));
-        r = a / wettedPerimeter;
-        t = flowValues['base'] + flowValues['slope1'] * flowValues['depth'] + flowValues['slope2'] * flowValues['depth'];
-        hydraulicDepth = a / t;
-    } else if (channelType === 'Rectangular') {
-        a = flowValues['base'] * flowValues['depth'];
-        wettedPerimeter = (2 * flowValues['depth'] + flowValues['base']);
-        r = a / wettedPerimeter;
-        t = flowValues['base'];
-        hydraulicDepth = a / t;
-    } else if (channelType === 'Triangular') {
-        a = ((flowValues['slope1'] * flowValues['depth'] / 2) + (flowValues['slope2'] * flowValues['depth'] / 2)) * flowValues['depth'];
-        wettedPerimeter = (flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope1'], 2) + 1) + flowValues['depth'] * Math.sqrt(Math.pow(flowValues['slope2'], 2) + 1));
-        r = a / wettedPerimeter;
-        t = flowValues['depth'] * (flowValues['slope1'] + flowValues['slope2']);
-        hydraulicDepth = a / t;
-    } else if (channelType === 'Circular') {
-        theta = 2 * (Math.PI - Math.acos((2 * flowValues['depth'] / flowValues['diameter']) - 1));
-        wettedPerimeter = theta * flowValues['diameter'] / 2;
-        a = (theta - Math.sin(theta)) * Math.pow(flowValues['diameter'], 2) / 8;
-        r = (1 - Math.sin(theta) / theta) * flowValues['diameter'] / 4;
-        t = 2 * Math.sqrt(flowValues['depth'] * (flowValues['diameter'] - flowValues['depth']));
-        hydraulicDepth = ((theta - Math.sin(theta)) / (Math.sin(theta / 2))) * flowValues['diameter'] / 8;
-    } else if (channelType === 'Cross Section') {
-
+    if (channelType === 'Circular') {
+        upperBounds = newCriticalFlowValues['diameter'];
+    } else {
+        upperBounds = 1000;
     }
 
+    while (fr < 0.9999 || fr > 1.001) {
+        newCriticalFlowValues['depth'] = newCriticalFlowValues['hydraulicDepth'];
+        newCriticalFlowValues = solveForAandR(newCriticalFlowValues);
+        fr = newCriticalFlowValues['velocity'] / Math.sqrt(g * newCriticalFlowValues['hydraulicDepth']);
 
-
-
-
-    while (Math.abs(tryFlowValue - criticalFlowValue) <= 0.00001) {
-        if (tryFlowValue > criticalFlowValue) {
-            jumpVal = jumpVal / 2;
-            yc = ycOld + jumpVal;
+        if (fr < 1) {
+            upperBounds = newCriticalFlowValues['hydraulicDepth'];
         } else {
-            ycOld = yc;
-            yc += jumpVal;
+            lowerBounds = newCriticalFlowValues['hydraulicDepth'];
         }
-        criticalFlowValues['depth'] = yc;
-        newCriticalFlowValues = solveForAandR(criticalFlowValues);
-        tryFlowValue = Math.pow(newCriticalFlowValues['area'], 3) / newCriticalFlowValues['topWidth'];
+        newCriticalFlowValues['hydraulicDepth'] = (upperBounds + lowerBounds) / 2;
     }
-    newCriticalFlowValues['flow'] = flow;
-    newCriticalFlowValues['velocity'] = flow / newCriticalFlowValues['area'];
     newCriticalFlowValues['criticalSlope'] = findCriticalSlope(newCriticalFlowValues);
     return newCriticalFlowValues;
 };
