@@ -207,8 +207,9 @@ let findCriticalDepth = function (criticalFlowValues, flow) {
     while (fr < 0.9999 || fr > 1.001) {
         newCriticalFlowValues['depth'] = newCriticalFlowValues['hydraulicDepth'];
         newCriticalFlowValues = solveForAandR(newCriticalFlowValues);
+        
         fr = newCriticalFlowValues['velocity'] / Math.sqrt(g * newCriticalFlowValues['hydraulicDepth']);
-
+        console.log(`Fr: ${fr}, Flow: ${newCriticalFlowValues['flow']}, Depth: ${newCriticalFlowValues['depth']}`);
         if (fr < 1) {
             upperBounds = newCriticalFlowValues['hydraulicDepth'];
         } else {
