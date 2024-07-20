@@ -210,7 +210,7 @@ let findCriticalDepth = function (criticalFlowValues, flow) {
         
         fr = newCriticalFlowValues['velocity'] / Math.sqrt(g * newCriticalFlowValues['hydraulicDepth']);
         console.log(`Fr: ${fr}, Flow: ${newCriticalFlowValues['flow']}, Depth: ${newCriticalFlowValues['depth']}`);
-        if (fr < 1) {
+        if (fr > 1) {
             upperBounds = newCriticalFlowValues['hydraulicDepth'];
         } else {
             lowerBounds = newCriticalFlowValues['hydraulicDepth'];
