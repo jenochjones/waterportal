@@ -94,7 +94,7 @@ let solveManningsForFlow = function (a, r, i, n, s) {
 };
 
 let normalDepth = function () {
-    debugger
+    let depth;
     let firstFlowValues = getUserInput();
     let allValues = {};
     if (document.getElementById('enter-depth-radio').checked) {
@@ -107,11 +107,10 @@ let normalDepth = function () {
         let upperBounds = 100;
         let trialFlow = 1;
 
-        let depth = (upperBounds + lowerBounds) / 2;
-
         allValues = solveForAandR(firstFlowValues);
 
         while (Math.abs(trialFlow - flow) > 0.001){
+            depth = (upperBounds + lowerBounds) / 2;
             allValues['depth'] = depth;
             allValues = solveForAandR(allValues);
             trialFlow = allValues['flow'];
@@ -121,9 +120,8 @@ let normalDepth = function () {
             } else {
                 lowerBounds = depth;
             }
-            depth = (upperBounds + lowerBounds) / 2;
         }
-
+        firstFlowValues['depth'] = depth;
         document.getElementById('enter-depth').value = Math.round(depth * 1000) / 1000;
     }
     let criticalValues = findCriticalDepth(allValues, allValues['flow']);
@@ -242,7 +240,6 @@ let findCriticalDepth = function (criticalFlowValues) {
     };
 
     Plotly.newPlot('plot', data, layout);
-    debugger
 
     let minIndex = energys.indexOf(Math.min(...energys));
     newCriticalFlowValues['depth'] = depths[minIndex];
@@ -283,7 +280,7 @@ let setResults = function (flow) {
     <p>Critical Depth: ${Math.round(flow['criticalDepth'] * 1000) / 1000} ${dut}</p>
     <p>Critical Velocity: ${Math.round(flow['criticalVelocity'] * 1000) / 1000} ${vut}</p>
     <p>Critical Area: ${Math.round(flow['criticalArea'] * 1000) / 1000} ${aut}</p>
-    <p>Critical Slop: ${Math.round(flow['criticalSlope'] * 1000) / 1000}</p>`;
+    <p>Critical Slope: ${Math.round(flow['criticalSlope'] * 1000) / 1000}</p>`;
     if (flow['depth'] > flow['criticalDepth']) {
         html += `<p>Flow is Subcritical</p>`;
     } else if (flow['depth'] < flow['criticalDepth']) {
