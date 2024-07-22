@@ -32,12 +32,30 @@
         <div class="nav-item" data-page="linearinterpolation.html">
           <b class="nav-item-text">Linear Interpolation</b>
         </div>
+        <div class="nav-item" data-page="epanet-schematic.html">
+          <b class="nav-item-text">EPANET Schematic</b>
+        </div>
         <div class="nav-item" data-page="whiteboard.html">
           <b class="nav-item-text">Whiteboard</b>
         </div>
       </div>
-      <div id="add-bar"></div>
+      <div id="add-bar">
+        <button id="openPopup">Open Popup</button>
+      </div>
       <div id="mainscreen-div"></div>
+
+      
+      <div id="overlay" class="overlay"></div>
+  
+      <div id="popup" class="popup">
+          <div class="popup-header">
+              <h2>Popup Title</h2>
+              <span class="close-btn" id="closePopup">&times;</span>
+          </div>
+          <div class="popup-content">
+            <div id="plot"></div>
+          </div>
+      </div>
     </div>
   </body>
 </html>

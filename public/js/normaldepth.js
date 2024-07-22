@@ -86,6 +86,55 @@ let getUserInput = function () {
     return flowValues;
 };
 
+
+
+let solveManningsForFlow = function (a, r, i, n, s) {
+    let flow = (i / n) * a * Math.pow(r, 2/3) * Math.sqrt(s);
+    return flow;
+};
+
+let normalDepth = function () {
+    debugger
+    let firstFlowValues = getUserInput();
+    let allValues = {};
+    if (document.getElementById('enter-depth-radio').checked) {
+        firstFlowValues['depth'] = parseFloat(document.getElementById('enter-depth').value);
+        allValues = solveForAandR(firstFlowValues);
+        document.getElementById('enter-flow').value = Math.round(allValues['flow'] * 1000) / 1000;
+    } else if (document.getElementById('enter-flow-radio').checked) {
+        let flow = parseFloat(document.getElementById('enter-flow').value);
+        let lowerBounds = 0;
+        let upperBounds = 100;
+        let trialFlow = 1;
+
+        let depth = (upperBounds + lowerBounds) / 2;
+
+        allValues = solveForAandR(firstFlowValues);
+
+        while (Math.abs(trialFlow - flow) > 0.001){
+            allValues['depth'] = depth;
+            allValues = solveForAandR(allValues);
+            trialFlow = allValues['flow'];
+    
+            if (trialFlow > flow) {
+                upperBounds = depth;
+            } else {
+                lowerBounds = depth;
+            }
+            depth = (upperBounds + lowerBounds) / 2;
+        }
+
+        document.getElementById('enter-depth').value = Math.round(depth * 1000) / 1000;
+    }
+    let criticalValues = findCriticalDepth(allValues, allValues['flow']);
+    allValues['depth'] = firstFlowValues['depth'];
+    allValues['criticalDepth'] = criticalValues['depth'];
+    allValues['criticalVelocity'] = criticalValues['velocity'];
+    allValues['criticalArea'] = criticalValues['area'];
+    allValues['criticalSlope'] = criticalValues['criticalSlope'];
+    setResults(allValues);
+};
+
 let solveForAandR = function (flowValues) {
     let a, r, theta, flow, t, hydraulicDepth, wettedPerimeter;
     const channelType = document.getElementById('nc-channel-type').value;
@@ -141,82 +190,65 @@ let solveForAandR = function (flowValues) {
     return newFlowValues;
 };
 
-let solveManningsForFlow = function (a, r, i, n, s) {
-    let flow = (i / n) * a * Math.pow(r, 2/3) * Math.sqrt(s);
-    return flow;
-};
-
-let normalDepth = function () {
-    debugger
-    let firstFlowValues = getUserInput();
-    let allValues = {};
-    if (document.getElementById('enter-depth-radio').checked) {
-        firstFlowValues['depth'] = parseFloat(document.getElementById('enter-depth').value);
-        allValues = solveForAandR(firstFlowValues);
-        document.getElementById('enter-flow').value = Math.round(allValues['flow'] * 1000) / 1000;
-    } else if (document.getElementById('enter-flow-radio').checked) {
-        let finalFlow = parseFloat(document.getElementById('enter-flow').value);
-        let yn = 0;
-        let ynOld = 0;
-        let jumpVal = 20;
-        let tryFlow = 1;
-        while (tryFlow > finalFlow + 0.00001 || tryFlow < finalFlow - 0.00001) {
-            if (tryFlow > finalFlow) {
-                jumpVal = jumpVal / 2.1;
-                yn = ynOld + jumpVal;
-            } else {
-                ynOld = yn;
-                yn += jumpVal;
-            }
-            firstFlowValues['depth'] = yn;
-            allValues = solveForAandR(firstFlowValues);
-            tryFlow = allValues['flow'];
-        }
-        document.getElementById('enter-depth').value = Math.round(yn * 1000) / 1000;
-    }
-    let criticalValues = findCriticalDepth(allValues, allValues['flow']);
-    allValues['depth'] = firstFlowValues['depth'];
-    allValues['criticalDepth'] = criticalValues['depth'];
-    allValues['criticalVelocity'] = criticalValues['velocity'];
-    allValues['criticalArea'] = criticalValues['area'];
-    allValues['criticalSlope'] = criticalValues['criticalSlope'];
-    setResults(allValues);
-};
-
-let findCriticalDepth = function (criticalFlowValues, flow) {
-    let g;
+let findCriticalDepth = function (criticalFlowValues) {
+    let g, E;
     let newCriticalFlowValues = { ...criticalFlowValues };
+    let Q = criticalFlowValues['flow'];
+    let maxDepth = 10;
+
     const channelType = document.getElementById('nc-channel-type').value;
-    debugger
+
     if (document.getElementById('nc-units').value == 'Metric') {
         g = 9.81;
     } else {
         g = 32.2;
     }
     
-    let fr = newCriticalFlowValues['velocity'] / Math.sqrt(g * newCriticalFlowValues['hydraulicDepth']);
-    let upperBounds = 1000;
-    let lowerBounds = 0;
-
     if (channelType === 'Circular') {
-        upperBounds = newCriticalFlowValues['diameter'];
-    } else {
-        upperBounds = 1000;
+        maxDepth = criticalFlowValues['diameter'];
     }
 
-    while (fr < 0.9999 || fr > 1.001) {
-        newCriticalFlowValues['depth'] = newCriticalFlowValues['hydraulicDepth'];
+    let depths = [];
+    let energys = [];
+    
+    for (let depth = 0.001; depth <= 10; depth += 0.01) {
+        newCriticalFlowValues['depth'] = depth;
         newCriticalFlowValues = solveForAandR(newCriticalFlowValues);
-        
-        fr = newCriticalFlowValues['velocity'] / Math.sqrt(g * newCriticalFlowValues['hydraulicDepth']);
-        console.log(`Fr: ${fr}, Flow: ${newCriticalFlowValues['flow']}, Depth: ${newCriticalFlowValues['depth']}`);
-        if (fr > 1) {
-            upperBounds = newCriticalFlowValues['hydraulicDepth'];
-        } else {
-            lowerBounds = newCriticalFlowValues['hydraulicDepth'];
+        E = newCriticalFlowValues['depth'] + Math.pow(Q / newCriticalFlowValues['area'], 2) / (2 * g);
+        if (!isNaN(depth) && !isNaN(E)) {
+            depths.push(depth);
+            energys.push(E);
         }
-        newCriticalFlowValues['hydraulicDepth'] = (upperBounds + lowerBounds) / 2;
     }
+
+    let trace = {
+        x: energys,
+        y: depths,
+        mode: 'lines',
+        name: 'Energy'
+    };
+
+    let data = [trace];
+
+    let layout = {
+        title: 'Depth vs Energy',
+        xaxis: {
+            title: 'Energy (J)',
+            range: [0, 10]
+        },
+        yaxis: {
+            title: 'Depth (ft)'
+        }
+    };
+
+    Plotly.newPlot('plot', data, layout);
+    debugger
+
+    let minIndex = energys.indexOf(Math.min(...energys));
+    newCriticalFlowValues['depth'] = depths[minIndex];
+
+    newCriticalFlowValues = solveForAandR(newCriticalFlowValues);
+
     newCriticalFlowValues['criticalSlope'] = findCriticalSlope(newCriticalFlowValues);
     return newCriticalFlowValues;
 };
