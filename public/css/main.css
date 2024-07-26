@@ -49,6 +49,19 @@ html {
     background-color: #dbe827;
 }
 
+#openPopup {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    width: 2em;
+    height: 2em;
+}
+
+#openPopup i {
+    font-size: 2em;
+    color: #333;
+}
+
 b {
     color: white;
     padding: 10px;
