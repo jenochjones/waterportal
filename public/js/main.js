@@ -2,12 +2,14 @@ import { setUpLinearInterpolation } from './linearinterpolation.js';
 import { setUpNormalDepth } from './normaldepth.js';
 import { setUpWhiteboard } from './whiteboard.js';
 import { setUpMannings } from './mannings.js';
+import { setSchematicEventListeners } from './epanet-schematic.js';
 
 const htmlElements = {
     'home.html': NaN,
     'mannings.html': setUpMannings,
     'linearinterpolation.html': setUpLinearInterpolation,
     'normaldepth.html': setUpNormalDepth,
+    'epanet-schematic.html': setSchematicEventListeners,
     'whiteboard.html': setUpWhiteboard,
 };
 
