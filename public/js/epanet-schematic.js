@@ -53,14 +53,14 @@ let drawValves = function () {
     const pageMinElev = getMinElev();
 
     let x = 4;
-    debugger
+
     for (let valve in valves) {
         console.log(valve[0]);
         let elev = valves[valve][1];
         let valveDiv = document.createElement('div');
         let valveTop = document.createElement('div');
         let valveBottom = document.createElement('div');
-        let mainWindow = document.getElementById('main-window');
+        let mainWindow = document.getElementById('schematic-main-window');
 
         valveDiv.classList.add('valve-div');
         valveDiv.style.position = 'absolute';
@@ -84,7 +84,7 @@ let drawPumps = function () {
     const pageMinElev = getMinElev();
 
     let x = 10;
-    debugger
+
     for (let pump in pumps) {
         let loc;
         console.log(pageMinElev);
@@ -93,7 +93,7 @@ let drawPumps = function () {
         let pumpDiv = document.createElement('div');
         let pumpTop = document.createElement('div');
         let pumpBottom = document.createElement('div');
-        let mainWindow = document.getElementById('main-window');
+        let mainWindow = document.getElementById('schematic-main-window');
 
         if (elev <= pageMinElev) {
             loc = 2;
@@ -130,14 +130,14 @@ let drawTanks = function () {
         let tankDiv = document.createElement('div');
         let tankTop = document.createElement('div');
         let tankBottom = document.createElement('div');
-        let mainWindow = document.getElementById('main-window');
+        let mainWindow = document.getElementById('schematic-main-window');
 
-        tankDiv.classList.add('tank-div');
+        tankDiv.classList.add('schematic-tank-div');
         tankDiv.style.position = 'absolute';
         tankDiv.style.bottom = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         tankDiv.style.left = `${x}%`;
-        tankTop.classList.add('tank-top');
-        tankBottom.classList.add('tank-bottom');
+        tankTop.classList.add('schematic-tank-top');
+        tankBottom.classList.add('schematic-tank-bottom');
         tankDiv.appendChild(tankBottom);
         tankDiv.appendChild(tankTop);
         mainWindow.appendChild(tankDiv);
@@ -145,7 +145,7 @@ let drawTanks = function () {
         x += 10;
     }
 
-    let tankDivs = document.getElementsByClassName('tank-div');
+    let tankDivs = document.getElementsByClassName('schematic-tank-div');
 
     tankDivs = Array.from(tankDivs);
     tankDivs.forEach(tdiv => {
@@ -163,7 +163,7 @@ let drawZones = function (zones) {
     let zoneWidth = 100 / numZones - 5;
     let x = 2.5;
 
-    const mainWindow = document.getElementById('main-window');
+    const mainWindow = document.getElementById('schematic-main-window');
 
     for (let zone in zones) {
         let maxElev = zones[zone]['MaxElev'];
@@ -174,7 +174,7 @@ let drawZones = function (zones) {
         const newDiv = document.createElement('div');
 
         // Set class and inline styles
-        newDiv.classList.add('zone');
+        newDiv.classList.add('schematic-zone');
         newDiv.style.left = `${x}%`;
         newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
@@ -197,13 +197,14 @@ let handleFileUpload = function (event) {
 
         if (file) {
             let reader = new FileReader();
+
             reader.onload = function () {
                 let image = document.createElement('img');
                 image.src = reader.result;
                 image.style.maxWidth = '100%';
                 image.style.maxHeight = '100%';
-                document.getElementById('logo').innerHTML = '';
-                document.getElementById('logo').appendChild(image);
+                document.getElementById('schematic-logo').innerHTML = '';
+                document.getElementById('schematic-logo').appendChild(image);
             };
 
             reader.readAsDataURL(file);
@@ -218,12 +219,12 @@ let drawElevLines = function () {
     const maxElevRound = Math.ceil(maxElev / 10) * 10;
     const minElevRound = Math.floor(minElev / 10) * 10;
     const elevDiff = maxElevRound - minElevRound;
-    const elevInt = document.getElementById("elev-int").value;
+    const elevInt = document.getElementById("schematic-elev-int").value;
     const numOfElev = elevDiff / elevInt + 1;
     const locInt = 95 / numOfElev;
 
-    let elevationsDiv = document.getElementById('elevations');
-    let mainWindowDiv = document.getElementById('main-window');
+    let elevationsDiv = document.getElementById('schematic-elevations');
+    let mainWindowDiv = document.getElementById('schematic-main-window');
 
     setElevInt(elevInt);
     setLocInt(locInt);
@@ -265,7 +266,7 @@ let drawElevLines = function () {
 
 let handleFile = function () {
     return new Promise((resolve, reject) => {
-        const fileInput = document.getElementById('fileInput');
+        const fileInput = document.getElementById('schematic-fileInput');
         const file = fileInput.files[0];
 
         if (file) {
@@ -415,7 +416,7 @@ let assignZones = function (modelDict) {
 
     const adjacencyList = {};
     
-    const numOfZones = document.getElementById('num-zones').value;
+    const numOfZones = document.getElementById('schematic-num-zones').value;
 
     // Populate adjacency list
     pipes.forEach(pipe => {

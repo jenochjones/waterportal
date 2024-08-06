@@ -29,10 +29,9 @@ input[type="file"] {
 }
 
 #schematic-white-rectangle {
-    width: calc((100vw - 5em) * 432 / 279);
+    width: calc(100vw - 300px);
     height: calc((100vw - 300px) * 279 / 432);
-    max-width: calc(100vw - 300px);
-    max-height: calc(100vh - 5em);
+    max-width: calc((100vh - 5em) * 432 / 279);
     background-color: rgb(255, 255, 255);
     border: none;
     position: relative;
