@@ -1,10 +1,49 @@
-let modelText = '';
-let modelDict = {};
+let modelDictVar = {};
 let maxElevVar = 1000;
 let minElevVar = 0;
 let elevIntVar = 0;
 let locIntVar = 0;
 
+
+let setModelDict = function (modelDict) {
+    modelDictVar = modelDict;
+}
+
+let getModelDict = function () {
+    return modelDictVar;
+}
+
+let setMinElev = function (minElev) {
+    minElevVar = minElev;
+}
+
+let getMinElev = function () {
+    return minElevVar;
+}
+
+let setMaxElev = function (maxElev) {
+    maxElevVar = maxElev;
+}
+
+let getMaxElev = function () {
+    return maxElevVar;
+}
+
+let setElevInt = function (elevInt) {
+    elevIntVar = elevInt;
+}
+
+let getElevInt = function () {
+    return elevIntVar;
+}
+
+let setLocInt = function (locInt) {
+    locIntVar = locInt;
+}
+
+let getLocInt = function () {
+    return locIntVar;
+}
 
 let drawLine = function(startCoords, endCoords, startID, endID) {
     // Extract coordinates
@@ -59,7 +98,11 @@ let drawLine = function(startCoords, endCoords, startID, endID) {
 
 
 let drawValves = function () {
+    const modelDict = getModelDict();
     const valves = modelDict['VALVES'].data;
+
+    const pageMaxElev = getMaxElev();
+    const pageMinElev = getMinElev();
 
     let x = 4;
 
@@ -73,7 +116,7 @@ let drawValves = function () {
 
         valveDiv.classList.add('valve-div');
         valveDiv.style.position = 'absolute';
-        valveDiv.style.bottom = `${2 + (elev - MinElev) * (93) / (maxElevVar - MinElev)}%`;
+        valveDiv.style.bottom = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         valveDiv.style.left = `${x}%`;
         valveTop.classList.add('valve-top');
         valveBottom.classList.add('valve-bottom');
@@ -86,7 +129,11 @@ let drawValves = function () {
 }
 
 let drawPumps = function () {
+    const modelDict = getModelDict();
     const pumps = modelDict['PUMPS'].data;
+
+    const pageMaxElev = getMaxElev();
+    const pageMinElev = getMinElev();
 
     let x = 10;
 
@@ -100,10 +147,10 @@ let drawPumps = function () {
         let pumpBottom = document.createElement('div');
         let mainWindow = document.getElementById('schematic-main-window');
 
-        if (elev <= MinElev) {
+        if (elev <= pageMinElev) {
             loc = 2;
         } else {
-            loc = 2 + (elev - MinElev) * (93) / (maxElevVar - MinElev);
+            loc = 2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev);
         }
 
         pumpDiv.classList.add('pump-div');
@@ -121,7 +168,11 @@ let drawPumps = function () {
 }
 
 let drawTanks = function () {
+    const modelDict = getModelDict();
     const tanks = modelDict['TANKS'].data;
+
+    const pageMaxElev = getMaxElev();
+    const pageMinElev = getMinElev();
 
     let x = 10;
 
@@ -133,7 +184,7 @@ let drawTanks = function () {
         let tankBottom = document.createElement('div');
         let mainWindow = document.getElementById('schematic-main-window');
         debugger
-        let tankLocBottom = `${2 + (elev - pageMinElev) * (93) / (maxElevVar - pageMinElev)}%`;
+        let tankLocBottom = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         let tankLocLeft = `${x}%`;
 
         tankDiv.classList.add('schematic-tank-div');
@@ -160,6 +211,9 @@ let drawTanks = function () {
 let drawZones = function (zones) {
     
     let numZones = Object.keys(zones).length;
+
+    const pageMaxElev = getMaxElev();
+    const pageMinElev = getMinElev();
 
     let zoneWidth = 100 / numZones - 5;
     let x = 2.5;
@@ -215,15 +269,20 @@ let handleFileUpload = function (event) {
 }
 
 let drawElevLines = function () {
-    const maxElevRound = Math.ceil(maxElevVar / 10) * 10;
-    const minElevRound = Math.floor(minElevVar / 10) * 10;
+    const maxElev = getMaxElev();
+    const minElev = getMinElev();
+    const maxElevRound = Math.ceil(maxElev / 10) * 10;
+    const minElevRound = Math.floor(minElev / 10) * 10;
     const elevDiff = maxElevRound - minElevRound;
-    elevIntVar = document.getElementById("schematic-elev-int").value;
-    const numOfElev = elevDiff / elevIntVar + 1;
-    locIntVar = 95 / numOfElev;
+    const elevInt = document.getElementById("schematic-elev-int").value;
+    const numOfElev = elevDiff / elevInt + 1;
+    const locInt = 95 / numOfElev;
 
     let elevationsDiv = document.getElementById('schematic-elevations');
     let mainWindowDiv = document.getElementById('schematic-main-window');
+
+    setElevInt(elevInt);
+    setLocInt(locInt);
 
     while (elevationsDiv.firstChild) {
         elevationsDiv.removeChild(elevationsDiv.firstChild);
@@ -234,8 +293,8 @@ let drawElevLines = function () {
     }
 
     for (let i = 0; i < numOfElev + 1; i++) {
-        let elev = minElevRound + elevIntVar * i;
-        let loc = 2 + locIntVar * i;
+        let elev = minElevRound + elevInt * i;
+        let loc = 2 + locInt * i;
 
         if (loc < 100) {
             let paragraph = document.createElement('p');
@@ -465,51 +524,6 @@ let assignZones = function (modelDict) {
     return zones;
 }
 
-let drawSchematic = function () {
-    debugger
-    let nodes = modelDict['JUNCTIONS'].data.map(row => [row[0]]);
-    let pipes = modelDict['PIPES'].data.map(row => row.slice(0, 3));
-
-    let zones = {};
-
-    const adjacencyList = {};
-
-    // Populate adjacency list
-    pipes.forEach(pipe => {
-        const [pipeId, startNodeId, endNodeId] = pipe;
-        if (!adjacencyList[startNodeId]) adjacencyList[startNodeId] = [];
-        if (!adjacencyList[endNodeId]) adjacencyList[endNodeId] = [];
-        adjacencyList[startNodeId].push(endNodeId);
-        adjacencyList[endNodeId].push(startNodeId);
-    });
-
-    // Initialize visited nodes and result array
-    const visited = {};
-    const groups = [];
-
-    function dfs(node, group) {
-        visited[node] = true;
-        group.push(node);
-        if (adjacencyList[node]) {
-            adjacencyList[node].forEach(neighbor => {
-                if (!visited[neighbor]) {
-                    dfs(neighbor, group);
-                }
-            });
-        }
-    }
-
-    // Perform DFS for each unvisited node
-    nodes.forEach(node => {
-        if (!visited[node]) {
-            const group = [];
-            dfs(node, group);
-            groups.push(group);
-        }
-    });
-
-}
-
 let getMinMax = function (modelDict) {
 
     let elementList = ['TANKS', 'JUNCTIONS'];
@@ -607,25 +621,20 @@ let  createModelDict = function (inputText) {
     return dataDict;
 }
 
-let mapSchematic = function () {
-    modelDict = createModelDict(modelText);
-    [maxElevVar, minElevVar] = getMinMax(modelDict);
-    drawElevLines();
-    drawSchematic();
-}
-
 let setSchematicEventListeners = function () {
     document.getElementById('schematic-fileInput').addEventListener('change', async (event) => {
-        modelText = await handleFile();
-        mapSchematic();
-        drawSchematics();
-        /*
+        const modelText = await handleFile();
+        let modelDict = createModelDict(modelText);
+        setModelDict(modelDict);
+        const maxMin = getMinMax(modelDict);
+        setMaxElev(maxMin[0]);
+        setMinElev(maxMin[1]);
+        drawElevLines(maxMin[0], maxMin[1]);
         let zones = assignZones(modelDict);
         drawZones(zones);
         drawTanks();
         drawPumps();
         drawValves();
-        */
     });
 
     document.getElementById('schematic-printBtn').addEventListener("click", (event) => {
