@@ -5,6 +5,13 @@ let minElevVar = 0;
 let elevIntVar = 0;
 let locIntVar = 0;
 
+let pageMinElev = '';
+let pageMaxElev = '';
+
+
+let w = 50;
+let h = 50;
+
 
 let drawLine = function(startCoords, endCoords, startID, endID) {
     // Extract coordinates
@@ -58,10 +65,87 @@ let drawLine = function(startCoords, endCoords, startID, endID) {
 };
 
 
-let drawValves = function () {
-    const valves = modelDict['VALVES'].data;
+function drawElement(x, y, wnew, hnew, element) {
+    w = wnew;
+    h = hnew;
 
-    let x = 4;
+    const elements = {
+        tank: `
+        <svg class="tank" width="${w}" height="${h}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="40" cy="47" rx="30" ry="10" fill="lightgrey" stroke="black" stroke-width="2"/>
+            <rect x="10" y="17" width="60" height="30" fill="lightgrey" stroke="grey" stroke-width="2" stroke-dasharray="0 78 0 78"/>
+            <ellipse cx="40" cy="20" rx="30" ry="10" fill="lightgrey" stroke="black" stroke-width="2"/>
+            <polyline points="10,20 10,47" stroke="black" stroke-width="2" fill="none"/>
+            <polyline points="70,20 70,47" stroke="black" stroke-width="2" fill="none"/>
+        </svg>
+        `,
+    
+        pump: `
+        <svg class="pump" width="${w}" height="${h}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="15" y="50" width="35" height="20" fill="gray" stroke="black" stroke-width="2"/>
+            <circle cx="50" cy="50" r="20" fill="gray" stroke="black" stroke-width="2"/> 
+            <circle cx="50" cy="50" r="5" fill="gray" stroke="black" stroke-width="1"/>
+        </svg>
+        `,
+    
+        psv: `
+        <svg class="psv" width="${w}" height="${h}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="25,25 25,75 50,50" fill="black" />
+            <polygon points="50,50 75,25 75,75" fill="black" />
+            <polyline points="50,50 50,75" stroke="black" stroke-width="2" fill="none"/>
+            <circle cx="50" cy="75" r="10" fill="gray" stroke="black" stroke-width="2"/>
+        </svg>
+        `,
+    
+        prv: `
+        <svg class="prv" width="${w}" height="${h}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="25,25 25,75 50,50" fill="black" />
+            <polygon points="50,50 75,25 75,75" fill="black" />
+            <polyline points="50,50 50,25" stroke="black" stroke-width="2" fill="none"/>
+            <circle cx="50" cy="25" r="10" fill="gray" stroke="black" stroke-width="2"/>
+        </svg>
+        `,
+    
+        fcv: `
+        <svg class="fcv" width="${w}" height="${h}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="25,25 25,75 50,50" fill="black" />
+            <polygon points="50,50 75,25 75,75" fill="black" />
+            <circle cx="50" cy="50" r="10" fill="gray" stroke="black" stroke-width="2"/>
+        </svg>
+        `,
+    
+        reservoir: `
+        <svg class="reservoir" width="${w}" height="${h}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="15,35 85,35 70,65 30,65" fill="brown" stroke="black" stroke-width="2" />
+            <path d="M20 45 Q30 50, 40 45 T60 45 T80 45" fill="none" stroke="blue" stroke-width="3"/>
+        </svg>
+        `
+    };
+
+    console.log(elements[element]);
+    
+
+    // Get the main screen div
+    const mainScreen = document.getElementById('schematic-main-window');
+    
+    // Create a container div for the tank SVG
+    const drawContainer = document.createElement('div');
+    
+    // Set the position and coordinates for the container
+    drawContainer.style.position = 'absolute';
+    drawContainer.style.left = `${x}px`;
+    drawContainer.style.top = `${y}px`;
+    
+    // Add the tankSVG content to the container
+    drawContainer.innerHTML = elements[element];
+    
+    // Append the tank container to the main screen div
+    mainScreen.appendChild(drawContainer);
+}
+
+
+let drawValves = function (x, y) {
+    const valves = modelDict['VALVES'].data;
 
     for (let valve in valves) {
         console.log(valve[0]);
@@ -73,22 +157,18 @@ let drawValves = function () {
 
         valveDiv.classList.add('valve-div');
         valveDiv.style.position = 'absolute';
-        valveDiv.style.bottom = `${2 + (elev - MinElev) * (93) / (maxElevVar - MinElev)}%`;
+        valveDiv.style.bottom = `${y}%`;//`${2 + (elev - MinElev) * (93) / (maxElevVar - MinElev)}%`;
         valveDiv.style.left = `${x}%`;
         valveTop.classList.add('valve-top');
         valveBottom.classList.add('valve-bottom');
         valveDiv.appendChild(valveBottom);
         valveDiv.appendChild(valveTop);
         mainWindow.appendChild(valveDiv);
-        
-        x += 2;
     }
 }
 
-let drawPumps = function () {
+let drawPumps = function (x, y) {
     const pumps = modelDict['PUMPS'].data;
-
-    let x = 10;
 
     for (let pump in pumps) {
         let loc;
@@ -108,7 +188,7 @@ let drawPumps = function () {
 
         pumpDiv.classList.add('pump-div');
         pumpDiv.style.position = 'absolute';
-        pumpDiv.style.bottom = `${loc}%`;
+        pumpDiv.style.bottom = `${y}%`;//`${loc}%`;
         pumpDiv.style.left = `${x}%`;
         pumpTop.classList.add('pump-top');
         pumpBottom.classList.add('pump-bottom');
@@ -120,10 +200,8 @@ let drawPumps = function () {
     }
 }
 
-let drawTanks = function () {
+let drawTanks = function (x, y) {
     const tanks = modelDict['TANKS'].data;
-
-    let x = 10;
 
     for (let tank in tanks) {
         console.log(tank[0]);
@@ -132,8 +210,8 @@ let drawTanks = function () {
         let tankTop = document.createElement('div');
         let tankBottom = document.createElement('div');
         let mainWindow = document.getElementById('schematic-main-window');
-        debugger
-        let tankLocBottom = `${2 + (elev - pageMinElev) * (93) / (maxElevVar - pageMinElev)}%`;
+
+        let tankLocBottom = `${y}%`;//`${2 + (elev - pageMinElev) * (93) / (maxElevVar - pageMinElev)}%`;
         let tankLocLeft = `${x}%`;
 
         tankDiv.classList.add('schematic-tank-div');
@@ -157,11 +235,47 @@ let drawTanks = function () {
     });
 }
 
+let drawRes = function (x, y) {
+    const reservoirs = modelDict['TANKS'].data;
+
+    for (let res in reservoirs) {
+        console.log(res[0]);
+        let elev = res[res][1];
+        let resDiv = document.createElement('div');
+        let resTop = document.createElement('div');
+        let resBottom = document.createElement('div');
+        let mainWindow = document.getElementById('schematic-main-window');
+        
+        let resLocBottom = `${y}%`;//`${2 + (elev - pageMinElev) * (93) / (maxElevVar - pageMinElev)}%`;
+        let resLocLeft = `${x}%`;
+
+        resDiv.classList.add('schematic-res-div');
+        resDiv.style.position = 'absolute';
+        resDiv.style.bottom = resLocBottom;
+        resDiv.style.left = resLocLeft;
+        resTop.classList.add('schematic-res-top');
+        resBottom.classList.add('schematic-res-bottom');
+        resDiv.appendChild(resBottom);
+        resDiv.appendChild(resTop);
+        mainWindow.appendChild(resDiv);
+        
+        x += 10;
+    }
+
+    let resDivs = document.getElementsByClassName('schematic-res-div');
+
+    resDivs = Array.from(resDivs);
+    resDivs.forEach(rdiv => {
+        makeDraggable(rdiv);
+    });
+}
+
+
 let drawZones = function (zones) {
     
     let numZones = Object.keys(zones).length;
 
-    let zoneWidth = 100 / numZones - 5;
+    let zoneWidth = 100 / numZones - 10;
     let x = 2.5;
 
     const mainWindow = document.getElementById('schematic-main-window');
@@ -185,7 +299,7 @@ let drawZones = function (zones) {
         newDiv.textContent = zone;
 
         mainWindow.appendChild(newDiv);
-        x += zoneWidth + 5;
+        x += zoneWidth + 10;
     }
 }
 
@@ -466,7 +580,7 @@ let assignZones = function (modelDict) {
 }
 
 let drawSchematic = function () {
-    debugger
+    
     let nodes = modelDict['JUNCTIONS'].data.map(row => [row[0]]);
     let pipes = modelDict['PIPES'].data.map(row => row.slice(0, 3));
 
@@ -498,16 +612,30 @@ let drawSchematic = function () {
             });
         }
     }
-
+    
     // Perform DFS for each unvisited node
     nodes.forEach(node => {
         if (!visited[node]) {
             const group = [];
-            dfs(node, group);
+            dfs(node[0], group);
             groups.push(group);
         }
     });
 
+    const pumps = modelDict['PUMPS'].data;
+    const tanks = modelDict['TANKS'].data;
+    const reservoirs = modelDict['RESERVOIRS'].data;
+    const valves = modelDict['VALVES'].data;
+    const junctions = modelDict['JUNCTIONS'].data;
+
+    let dict = modelDict;
+    
+    for (let g in groups) {
+        for (let n in groups[g]) {
+            console.log(groups[g][n])
+        }
+    }
+    
 }
 
 let getMinMax = function (modelDict) {
@@ -612,16 +740,23 @@ let mapSchematic = function () {
     [maxElevVar, minElevVar] = getMinMax(modelDict);
     drawElevLines();
     drawSchematic();
+    pageMaxElev = maxElevVar;
+    pageMinElev = minElevVar;
+    let zones = assignZones(modelDict);
+    drawZones(zones);
 }
 
 let setSchematicEventListeners = function () {
     document.getElementById('schematic-fileInput').addEventListener('change', async (event) => {
         modelText = await handleFile();
         mapSchematic();
-        drawSchematics();
+
+        //drawSchematics();
+        
+        
+        debugger
+        
         /*
-        let zones = assignZones(modelDict);
-        drawZones(zones);
         drawTanks();
         drawPumps();
         drawValves();
@@ -639,6 +774,9 @@ let setSchematicEventListeners = function () {
     })
 
     document.getElementById('schematic-logo').addEventListener('click', handleFileUpload);
+    document.getElementById('draw-btn').addEventListener('click', () => {
+        drawElement(70, 50, 20, 20, 'psv')
+    });
 }
 
 export {
