@@ -155,34 +155,49 @@ function drawElement(x, y, size, element, elev) {
 
 
 let drawZones = function () {
-    
-    let numZones = Object.keys(zones).length;
+    debugger
+    let numZones = Object.values(zones).length;//.filter(group => group.IsZone === 'Yes').length;
     let count = 1;
     let zoneWidth = 10;
     
     const mainWindow = document.getElementById('schematic-main-window');
     
     for (let zone in zones) {
+        let maxElev = parseFloat(zones[zone]['MaxElev']);
+        let minElev = parseFloat(zones[zone]['MinElev']);
+        let avgElev = (maxElev + minElev) / 2;
 
-        let maxElev = zones[zone]['MaxElev'];
-        let minElev = zones[zone]['MinElev'];
+        if (zones[zone]['IsZone'] === 'Yes') {
+            const newDiv = document.createElement('div');
 
-        console.log(`${zone}: ${maxElev}, ${minElev}`);
+            // Set class and inline styles
+            newDiv.classList.add('schematic-zone');
+            newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
+            newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+            newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+            newDiv.style.width = `${zoneWidth}%`;
 
-        const newDiv = document.createElement('div');
+            // Set innerHTML to zone
+            newDiv.textContent = zone;
 
-        // Set class and inline styles
-        newDiv.classList.add('schematic-zone');
-        newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
-        newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-        newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-        newDiv.style.width = `${zoneWidth}%`;
+            mainWindow.appendChild(newDiv);
+            count += 1;
+        } else {
+            const newDiv = document.createElement('div');
 
-        // Set innerHTML to zone
-        newDiv.textContent = zone;
+            // Set class and inline styles
+            newDiv.classList.add('schematic-zone');
+            newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
+            newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+            newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+            newDiv.style.width = `${zoneWidth}%`;
 
-        mainWindow.appendChild(newDiv);
-        count += 1;
+            // Set innerHTML to zone
+            newDiv.textContent = zone;
+
+            mainWindow.appendChild(newDiv);
+            count += 1;
+        }
     }
 }
 
@@ -396,6 +411,7 @@ let getMaxElevation = function (idsWithElevation, targetIds) {
 let assignZones = function () {
     let filteredRows;
     let demand;
+    let name;
     // Initialize an adjacency list to represent the graph
     //let reservoirs = modelDict['RESERVOIRS'].data.map(row => [row[0]]);
     //let pumps = modelDict['PUMPS'].data.map(row => [row[0]]);
@@ -441,83 +457,39 @@ let assignZones = function () {
         if (!visited[node]) {
             const group = [];
             dfs(node, group);
-            
-            filteredRows = demands.filter(row => group.includes(row[0]));
-            demand = filteredRows.reduce((sum, row) => sum + Number(row[1]), 0);
-            
-            if (demand > 0 || group.length > 50) {
-                groups.push(group);
-            }
+            groups.push(group);
         }
     });
 
-    let counter = 1;
+    let zCounter = 1;
+    let gCounter = 1;
     
     groups.forEach(group => {
-        zones[`Zone ${counter}`] = {};
-        zones[`Zone ${counter}`]['JUNCTIONS'] = group;
+        filteredRows = demands.filter(row => group.includes(row[0]));
+        demand = filteredRows.reduce((sum, row) => sum + Number(row[1]), 0);
+        
+        if (demand > 0 || group.length > 50) {
+            name = `Zone ${zCounter}`;
+            zones[name] = {};
+            zones[name]['IsZone'] = 'Yes';
+            zCounter++;
+        } else {
+            name = `Group ${gCounter}`;
+            zones[name] = {};
+            zones[name]['IsZone'] = 'No';
+            gCounter++;
+        }
+
+        zones[name]['JUNCTIONS'] = group;
         let maxElev = getMaxElevation(modelDict['JUNCTIONS'].data.map(row => [row[0], row[1]]), group);
         let minElev = getMinElevation(modelDict['JUNCTIONS'].data.map(row => [row[0], row[1]]), group);
-        zones[`Zone ${counter}`]['MaxElev'] = maxElev;
-        zones[`Zone ${counter}`]['MinElev'] = minElev;
-        counter++;
+        zones[name]['MaxElev'] = maxElev;
+        zones[name]['MinElev'] = minElev;
     });
 
     return zones;
 }
 
-let drawSchematic = function () {
-    
-    let nodes = modelDict['JUNCTIONS'].data.map(row => [row[0]]);
-    let pipes = modelDict['PIPES'].data.map(row => row.slice(0, 3));
-
-    let zones = {};
-
-    const adjacencyList = {};
-
-    // Populate adjacency list
-    pipes.forEach(pipe => {
-        const [pipeId, startNodeId, endNodeId] = pipe;
-        if (!adjacencyList[startNodeId]) adjacencyList[startNodeId] = [];
-        if (!adjacencyList[endNodeId]) adjacencyList[endNodeId] = [];
-        adjacencyList[startNodeId].push(endNodeId);
-        adjacencyList[endNodeId].push(startNodeId);
-    });
-
-    // Initialize visited nodes and result array
-    const visited = {};
-    const groups = [];
-
-    function dfs(node, group) {
-        visited[node] = true;
-        group.push(node);
-        if (adjacencyList[node]) {
-            adjacencyList[node].forEach(neighbor => {
-                if (!visited[neighbor]) {
-                    dfs(neighbor, group);
-                }
-            });
-        }
-    }
-    
-    // Perform DFS for each unvisited node
-    nodes.forEach(node => {
-        if (!visited[node]) {
-            const group = [];
-            dfs(node[0], group);
-            groups.push(group);
-        }
-    });
-
-    let dict = modelDict;
-    
-    for (let g in groups) {
-        for (let n in groups[g]) {
-            console.log(groups[g][n])
-        }
-    }
-    
-}
 
 let getMinMax = function (modelDict) {
 
@@ -636,7 +608,9 @@ let createSchematicDict = function () {
     
     
     for (let pump in pumps) {
-        
+        upNode = null;
+        downNode = null;
+
         let numPumps = pumps.length;
         upElev = junctions.find(row => row[0] === pumps[pump][1]) || null;
         downElev = junctions.find(row => row[0] === pumps[pump][2]) || null;
@@ -652,8 +626,12 @@ let createSchematicDict = function () {
         downNode = null;
 
         for (let zone in zones) {
-            upNode = zones[zone]['JUNCTIONS'].includes(pumps[pump][1]) ? zone : upNode;
-            downNode = zones[zone]['JUNCTIONS'].includes(pumps[pump][2]) ? zone : downNode;
+            if (zones[zone]['JUNCTIONS'].includes(pumps[pump][1])){
+                upNode =  zone;
+            }
+            if (zones[zone]['JUNCTIONS'].includes(pumps[pump][2])) {
+                downNode =  zone;
+            }
         }
 
         schematicDict['PUMPS'][pumps[pump][0]] = {
@@ -668,10 +646,13 @@ let createSchematicDict = function () {
     }
 
     for (let tank in tanks) {
+        upNode = null;
+        downNode = null;
+
         let numTanks = tanks.length;
         console.log(tank)
-        let pipeUp = pipes.find(row => row[1] === tanks[tank][0]) || null;
-        let pipeDown = pipes.find(row => row[2] === tanks[tank][0]) || null;
+        //let pipeUp = pipes.find(row => row[1] === tanks[tank][0]) || null;
+        //let pipeDown = pipes.find(row => row[2] === tanks[tank][0]) || null;
 
         elev = parseFloat(tanks[tank][1]);
 
@@ -680,15 +661,16 @@ let createSchematicDict = function () {
         } else {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
-
+        
         for (let zone in zones) {
-            upNode = zones[zone]['JUNCTIONS'].includes(tanks[tank][1]) ? zone : null;
-            downNode = zones[zone]['JUNCTIONS'].includes(tanks[tank][2]) ? zone : null;
+            if (zones[zone]['JUNCTIONS'].includes(tanks[tank][0])) {
+                downNode = zone;
+            }
         }
 
         schematicDict['TANKS'][tanks[tank][0]] = {
-            'UpNode': pipeUp ? pipeUp[1] : null,
-            'DownNode': pipeDown ? pipeDown[2] : null,
+            'UpNode': upNode,
+            'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numTanks) * (parseFloat(tank) + 1)}%`,
             'size': 30,
@@ -698,9 +680,12 @@ let createSchematicDict = function () {
     }
     
     for (let reservoir in reservoirs) {
+        upNode = null;
+        downNode = null;
+
         let numRes =reservoirs.length;
-        let pipeUp = pipes.find(row => row[1] === reservoirs[reservoir][0]) || null;
-        let pipeDown = pipes.find(row => row[2] === reservoirs[reservoir][0]) || null;
+        //let pipeUp = pipes.find(row => row[1] === reservoirs[reservoir][0]) || null;
+        //let pipeDown = pipes.find(row => row[2] === reservoirs[reservoir][0]) || null;
 
         elev = parseFloat(reservoirs[reservoir][1]);
 
@@ -710,9 +695,15 @@ let createSchematicDict = function () {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
 
+        for (let zone in zones) {
+            if (zones[zone]['JUNCTIONS'].includes(reservoirs[reservoir][0])) {
+                downNode = zone;
+            }
+        }
+
         schematicDict['RESERVOIRS'][reservoirs[reservoir][0]] = {
-            'UpNode': pipeUp ? pipeUp[1] : null,
-            'DownNode': pipeDown ? pipeDown[2] : null,
+            'UpNode': upNode,
+            'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numRes) * (parseFloat(reservoir) + 1)}%`,
             'size': 40,
@@ -722,6 +713,9 @@ let createSchematicDict = function () {
     }
 
     for (let valve in valves) {
+        upNode = null;
+        downNode = null;
+
         let numValves = valves.length;
         upElev = junctions.find(row => row[0] === valves[valve][1]) || null;
         downElev = junctions.find(row => row[0] === valves[valve][2]) || null;
@@ -733,9 +727,18 @@ let createSchematicDict = function () {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
 
+        for (let zone in zones) {
+            if (zones[zone]['JUNCTIONS'].includes(valves[valve][1])) {
+                upNode = zone;
+            }
+            if (zones[zone]['JUNCTIONS'].includes(valves[valve][2])) {
+                downNode = zone;
+            }
+        }
+
         schematicDict['VALVES'][valves[valve][0]] = {
-            'UpNode': valves[valve][1],
-            'DownNode': valves[valve][2],
+            'UpNode': upNode,
+            'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numValves) * (parseFloat(valve) + 1)}%`,
             'size': 20,
