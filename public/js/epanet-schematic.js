@@ -156,47 +156,88 @@ function drawElement(x, y, size, element, elev) {
 
 let drawZones = function () {
     debugger
-    let numZones = Object.values(zones).length;//.filter(group => group.IsZone === 'Yes').length;
+    let numZones = Object.values(zones).filter(group => group.IsZone === 'Yes').length;
     let count = 1;
-    let zoneWidth = 10;
+    let zoneWidth = 8;
     
     const mainWindow = document.getElementById('schematic-main-window');
+
+    for (let zone in zones) {
+        zones[zone]['avgElev'] = (parseFloat(zones[zone]['MaxElev']) + parseFloat(zones[zone]['MinElev'])) / 2;
+    }
+
     
     for (let zone in zones) {
-        let maxElev = parseFloat(zones[zone]['MaxElev']);
-        let minElev = parseFloat(zones[zone]['MinElev']);
-        let avgElev = (maxElev + minElev) / 2;
-
         if (zones[zone]['IsZone'] === 'Yes') {
+            let maxElev = parseFloat(zones[zone]['MaxElev']);
+            let minElev = parseFloat(zones[zone]['MinElev']);
+
+
+            if (zones[zone]['IsZone'] === 'Yes') {
+                let x = (((120 / (numZones + 1)) * (count) - 20) + zoneWidth) / 2;
+                let y = ((2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)) + (2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev))) / 2;
+                
+                zones[zone]['X'] = x;
+                zones[zone]['Y'] = y;
+                const newDiv = document.createElement('div');
+
+                // Set class and inline styles
+                newDiv.classList.add('schematic-zone');
+                newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
+                newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+                newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+                newDiv.style.width = `${zoneWidth}%`;
+
+                // Set innerHTML to zone
+                newDiv.textContent = zone;
+
+                mainWindow.appendChild(newDiv);
+                count += 1;
+            }
+        }
+    }
+
+    for (let group in zones) {
+        if (zones[group]['IsZone'] === 'No') {
+            let zonesToAverage = [];
+            let xAvg = 0;
+            let zCount = 0;
+            
+            for (let catagory in schematicDict) {
+                for (let element in schematicDict[catagory]) {
+                    let upNode = schematicDict[catagory][element]['UpNode'];
+                    let downNode = schematicDict[catagory][element]['DownNode'];
+                
+                    if (upNode === group && typeof downNode === 'string' && downNode.includes('Zone')) {
+                        zonesToAverage.push(downNode);
+                    } else if (downNode === group && typeof upNode === 'string' && upNode.includes('Zone')) {
+                        zonesToAverage.push(upNode);
+                    }
+                }
+            }
+            
+            for (let avgZone in zonesToAverage) {
+                xAvg += zones[zonesToAverage[avgZone]]['X'];
+                zCount += 1;
+
+            }
+
+            if (zCount != 0) {
+                xAvg = xAvg / zCount;
+            }
+            
             const newDiv = document.createElement('div');
+            zones[group]['X'] = xAvg;
+            debugger
+            zones[group]['Y'] = 2 + (zones[group]['avgElev'] - pageMinElev) * (93) / (pageMaxElev - pageMinElev);
 
-            // Set class and inline styles
-            newDiv.classList.add('schematic-zone');
-            newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
-            newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-            newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-            newDiv.style.width = `${zoneWidth}%`;
-
-            // Set innerHTML to zone
-            newDiv.textContent = zone;
+            newDiv.classList.add('schematic-group-zone');
+            newDiv.style.left = `${zones[group]['X']}%`;
+            newDiv.style.bottom = `${zones[group]['Y']}%`;
+            
+            newDiv.innerHTML = group;
 
             mainWindow.appendChild(newDiv);
-            count += 1;
-        } else {
-            const newDiv = document.createElement('div');
-
-            // Set class and inline styles
-            newDiv.classList.add('schematic-zone');
-            newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
-            newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-            newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-            newDiv.style.width = `${zoneWidth}%`;
-
-            // Set innerHTML to zone
-            newDiv.textContent = zone;
-
-            mainWindow.appendChild(newDiv);
-            count += 1;
         }
     }
 }
@@ -597,13 +638,11 @@ let createSchematicDict = function () {
     let downNode;
     let elev;
 
-    debugger
-
     const pumps = modelDict['PUMPS'].data;
     const tanks = modelDict['TANKS'].data;
     const reservoirs = modelDict['RESERVOIRS'].data;
     const valves = modelDict['VALVES'].data;
-    const pipes = modelDict['PIPES'].data;
+    //const pipes = modelDict['PIPES'].data;
     const junctions = modelDict['JUNCTIONS'].data;
     
     
@@ -639,7 +678,7 @@ let createSchematicDict = function () {
             'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numPumps) * (parseFloat(pump) + 1)}%`,
-            'size': 30,
+            'size': 20,
             'elev': elev,
             'type': 'PUMP'
         }
@@ -673,7 +712,7 @@ let createSchematicDict = function () {
             'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numTanks) * (parseFloat(tank) + 1)}%`,
-            'size': 30,
+            'size': 20,
             'elev': elev,
             'type': 'TANK'
         };
@@ -706,7 +745,7 @@ let createSchematicDict = function () {
             'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numRes) * (parseFloat(reservoir) + 1)}%`,
-            'size': 40,
+            'size': 30,
             'elev': elev,
             'type': 'RESERVOIR'
         };
@@ -741,7 +780,7 @@ let createSchematicDict = function () {
             'DownNode': downNode,
             'x': xLoc,
             'y': `${(95 / numValves) * (parseFloat(valve) + 1)}%`,
-            'size': 20,
+            'size': 10,
             'elev': elev,
             'type': valves[valve][4]
         }
@@ -772,17 +811,7 @@ let setSchematicEventListeners = function () {
         zones = assignZones();
 
         createSchematicDict();
-        
         mapSchematic();
-        debugger
-        //drawSchematics();
-        
-        
-        /*
-        drawTanks();
-        drawPumps();
-        drawValves();
-        */
     });
 
     document.getElementById('schematic-printBtn').addEventListener("click", (event) => {
