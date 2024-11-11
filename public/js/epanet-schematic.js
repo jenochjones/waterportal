@@ -7,8 +7,11 @@ let locIntVar = 0;
 
 let zones = {};
 
-let pageMinElev = '';
-let pageMaxElev = '';
+let pageMinElev = 0;
+let pageMaxElev = 0;
+
+let pageMinPercent = 0;
+let pageMaxPercent = 0;
 
 let schematicDict = {
     'PUMPS': {},
@@ -17,63 +20,87 @@ let schematicDict = {
     'VALVES': {},
 };
 
-let w = 50;
-let h = 50;
+let locationDict = {};
+
+//let w = 50;
+//let h = 50;
 
 
-let drawLine = function(startCoords, endCoords, startID, endID) {
-    // Extract coordinates
-    const [startX, startY] = startCoords;
-    const [endX, endY] = endCoords;
+let drawLine = function (startX, startY, endX, endY) {
+    // Get the container with id 'schematic-main-window'
+    const container = document.getElementById('schematic-main-window');
 
-    // Determine intermediate points for the L-shaped path
-    const midX = startX;
-    const midY = endY;
 
+    let connector1 = document.createElement('div');
+    connector1.style.position = 'absolute';
+    connector1.style.bottom = `${startY}%`;
+    connector1.style.left = `${startX}%`;
+    connector1.style.right = `${100 - endX}%`;
+    connector1.style.borderTop = '1px solid black';
+    connector1.style.margin = `0`;
+    connector1.style.height = '0';
+    container.appendChild(connector1);
+
+    let connector2 = document.createElement('div');
+    connector2.style.position = 'absolute';
+    connector2.style.left = `${startX}%`;
+    connector2.style.bottom = `${startY}%`;
+    connector2.style.top = `${100 - endY}%`;
+    connector2.style.borderRight = '1px solid black';
+    connector2.style.margin = `0`;
+    connector2.style.width = '0';
+    container.appendChild(connector2);
+    
+
+    /*
+    // Ensure the container is positioned relative
+    container.style.position = 'relative';
+    
     // Create an SVG element
-    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "100%");
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.style.position = 'absolute';
+    svg.style.top = 0;
+    svg.style.left = 0;
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+    
+    // Convert percentage coordinates to actual positions based on the container's dimensions
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    
+    const startXPos = (startX / 100) * containerWidth;
+    const startYPos = (startY / 100) * containerHeight;
+    const endXPos = (endX / 100) * containerWidth;
+    const endYPos = (endY / 100) * containerHeight;
+    
+    // Determine the path
+    let path;
+    if (startX === endX || startY === endY) {
+        // Direct horizontal or vertical line if start and end points are aligned
+        path = `M ${startXPos} ${startYPos} L ${endXPos} ${endYPos}`;
+    } else {
+        // Horizontal-vertical or vertical-horizontal path if points are not aligned
+        const midXPos = endXPos;
+        const midYPos = startYPos;
+        path = `M ${startXPos} ${startYPos} L ${midXPos} ${midYPos} L ${endXPos} ${endYPos}`;
+    }
 
-    // Create the path for the line
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", `M${startX},${startY} L${midX},${midY} L${endX},${endY}`);
-    path.setAttribute("stroke", "black");
-    path.setAttribute("stroke-width", "2");
-    path.setAttribute("fill", "none");
+    // Create polyline element
+    const polyline = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    polyline.setAttribute("d", path);
+    polyline.setAttribute("stroke", "black");
+    polyline.setAttribute("stroke-width", "1");
+    polyline.setAttribute("fill", "none");
 
-    // Create the marker for the arrowhead
-    let marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
-    marker.setAttribute("id", "arrowhead");
-    marker.setAttribute("markerWidth", "10");
-    marker.setAttribute("markerHeight", "7");
-    marker.setAttribute("refX", "10");
-    marker.setAttribute("refY", "3.5");
-    marker.setAttribute("orient", "auto");
-
-    // Create the arrowhead shape
-    let arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    arrow.setAttribute("points", "0 0, 10 3.5, 0 7");
-    arrow.setAttribute("fill", "black");
-
-    // Append the arrowhead to the marker
-    marker.appendChild(arrow);
-
-    // Add the marker to the SVG
-    svg.appendChild(marker);
-
-    // Set the marker-end attribute to the path
-    path.setAttribute("marker-end", "url(#arrowhead)");
-
-    // Append the path to the SVG
-    svg.appendChild(path);
-
-    // Append the SVG to the elements identified by startID and endID
-    document.getElementById('schematic-main-window').appendChild(svg);
-};
+    // Append the polyline to the SVG
+    svg.appendChild(polyline);
+    container.appendChild(svg);
+    */
+}
 
 
-function drawElement(x, y, size, element, elev) {
+
+function drawElement(x, y, size, element, id) {
     const elements = {
         'TANK': `
         <svg class="tank" width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
@@ -126,17 +153,18 @@ function drawElement(x, y, size, element, elev) {
         </svg>
         `
     };    
-
+    debugger
     // Get the main screen div
     const mainScreen = document.getElementById('schematic-main-window');
+    const mainWidth = mainScreen.getBoundingClientRect().width;
     
     // Create a container div for the SVG
     const drawContainer = document.createElement('div');
     
     // Set the position and coordinates for the container using percentages
     drawContainer.style.position = 'absolute';
-    drawContainer.style.left = `calc(${y} - ${size / 2}px)`;  // Offset left to center the container
-    drawContainer.style.bottom = `calc(${x} - ${size / 2}px)`;  // Offset bottom to center the container
+    drawContainer.style.left = `${y}%`;//`calc(${y} - ${size / 2}px)`;  // Offset left to center the container
+    drawContainer.style.bottom = `${x}%`;//`calc(${x} - ${size / 2}px)`;  // Offset bottom to center the container
     drawContainer.style.width = `${size}px`;
     drawContainer.style.height = `${size}px`;
     
@@ -150,15 +178,17 @@ function drawElement(x, y, size, element, elev) {
     
     // Append the container to the main screen div
     mainScreen.appendChild(drawContainer);
+
+    locationDict[id] = [x + (size / 2) / mainWidth, y + (size / 2) / mainWidth];
 }
 
 
 
-let drawZones = function () {
-    debugger
+let drawZones = function (nodePositions) {
     let numZones = Object.values(zones).filter(group => group.IsZone === 'Yes').length;
     let count = 1;
     let zoneWidth = 8;
+    let x;
     
     const mainWindow = document.getElementById('schematic-main-window');
 
@@ -166,26 +196,24 @@ let drawZones = function () {
         zones[zone]['avgElev'] = (parseFloat(zones[zone]['MaxElev']) + parseFloat(zones[zone]['MinElev'])) / 2;
     }
 
-    
     for (let zone in zones) {
         if (zones[zone]['IsZone'] === 'Yes') {
             let maxElev = parseFloat(zones[zone]['MaxElev']);
             let minElev = parseFloat(zones[zone]['MinElev']);
-
-
+            x = nodePositions[zone];
             if (zones[zone]['IsZone'] === 'Yes') {
-                let x = (((120 / (numZones + 1)) * (count) - 20) + zoneWidth) / 2;
-                let y = ((2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)) + (2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev))) / 2;
+                //let x = (((120 / (numZones + 1)) * (count) - 20) + zoneWidth) / 2;
+                //let y = pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
                 
-                zones[zone]['X'] = x;
-                zones[zone]['Y'] = y;
+                //zones[zone]['X'] = x;
+                //zones[zone]['Y'] = y;
                 const newDiv = document.createElement('div');
 
                 // Set class and inline styles
                 newDiv.classList.add('schematic-zone');
-                newDiv.style.left = `${(120 / (numZones + 1)) * (count) - 20}%`;
-                newDiv.style.bottom = `${2 + (minElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
-                newDiv.style.top = `${2 + (maxElev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
+                newDiv.style.left = `${x}%`;
+                newDiv.style.bottom = `${pageMinPercent + (minElev - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev)}%`;
+                newDiv.style.top = `${100 - (pageMinPercent + (maxElev - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev))}%`;
                 newDiv.style.width = `${zoneWidth}%`;
 
                 // Set innerHTML to zone
@@ -199,10 +227,14 @@ let drawZones = function () {
 
     for (let group in zones) {
         if (zones[group]['IsZone'] === 'No') {
+            let maxElev = parseFloat(zones[group]['MaxElev']);
+            let minElev = parseFloat(zones[group]['MinElev']);
+
             let zonesToAverage = [];
-            let xAvg = 0;
+            //let xAvg = 0;
             let zCount = 0;
-            
+            x = nodePositions[group];
+            /*
             for (let catagory in schematicDict) {
                 for (let element in schematicDict[catagory]) {
                     let upNode = schematicDict[catagory][element]['UpNode'];
@@ -225,15 +257,15 @@ let drawZones = function () {
             if (zCount != 0) {
                 xAvg = xAvg / zCount;
             }
-            
+            */
             const newDiv = document.createElement('div');
-            zones[group]['X'] = xAvg;
-            debugger
-            zones[group]['Y'] = 2 + (zones[group]['avgElev'] - pageMinElev) * (93) / (pageMaxElev - pageMinElev);
+            //zones[group]['X'] = xAvg;
+            
+            //zones[group]['Y'] = pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
 
             newDiv.classList.add('schematic-group-zone');
-            newDiv.style.left = `${zones[group]['X']}%`;
-            newDiv.style.bottom = `${zones[group]['Y']}%`;
+            newDiv.style.left = `${x}%`;
+            newDiv.style.bottom = `${pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev)}%`;
             
             newDiv.innerHTML = group;
 
@@ -291,8 +323,16 @@ let drawElevLines = function () {
         let loc = 2 + locIntVar * i;
 
         if (loc < 100) {
+            if (i === 0) {
+                pageMinPercent = loc;
+                pageMinElev = elev;
+            } else {
+                pageMaxPercent = loc;
+                pageMaxElev = elev;
+            }
+
             let paragraph = document.createElement('p');
-            paragraph.textContent = elev;
+            paragraph.textContent = `${elev}`;
             paragraph.style.position = 'absolute';
             paragraph.style.bottom = `calc(${loc}% - 0.5em)`;
             paragraph.style.margin = `0`;
@@ -513,11 +553,13 @@ let assignZones = function () {
             name = `Zone ${zCounter}`;
             zones[name] = {};
             zones[name]['IsZone'] = 'Yes';
+            zones[name]['Connectors'] = []; 
             zCounter++;
         } else {
             name = `Group ${gCounter}`;
             zones[name] = {};
             zones[name]['IsZone'] = 'No';
+            zones[name]['Connectors'] = []; 
             gCounter++;
         }
 
@@ -631,7 +673,7 @@ let  createModelDict = function (inputText) {
 
 
 let createSchematicDict = function () {
-    let xLoc;
+    //let xLoc;
     let upElev;
     let downElev;
     let upNode;
@@ -650,19 +692,21 @@ let createSchematicDict = function () {
         upNode = null;
         downNode = null;
 
-        let numPumps = pumps.length;
+        //let numPumps = pumps.length;
         upElev = junctions.find(row => row[0] === pumps[pump][1]) || null;
         downElev = junctions.find(row => row[0] === pumps[pump][2]) || null;
         elev = (parseFloat(upElev[1]) + parseFloat(downElev[1])) / 2;
 
+        /*
         if (elev < pageMinElev) {
             xLoc = `2%`;
         } else {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
-
+        */
         upNode = null;
         downNode = null;
+
 
         for (let zone in zones) {
             if (zones[zone]['JUNCTIONS'].includes(pumps[pump][1])){
@@ -676,8 +720,8 @@ let createSchematicDict = function () {
         schematicDict['PUMPS'][pumps[pump][0]] = {
             'UpNode': upNode,
             'DownNode': downNode,
-            'x': xLoc,
-            'y': `${(95 / numPumps) * (parseFloat(pump) + 1)}%`,
+            //'x': xLoc,
+            //'y': `${(95 / numPumps) * (parseFloat(pump) + 1)}%`,
             'size': 20,
             'elev': elev,
             'type': 'PUMP'
@@ -688,19 +732,20 @@ let createSchematicDict = function () {
         upNode = null;
         downNode = null;
 
-        let numTanks = tanks.length;
+        //let numTanks = tanks.length;
         console.log(tank)
         //let pipeUp = pipes.find(row => row[1] === tanks[tank][0]) || null;
         //let pipeDown = pipes.find(row => row[2] === tanks[tank][0]) || null;
 
         elev = parseFloat(tanks[tank][1]);
 
+        /*
         if (elev < pageMinElev) {
             xLoc = `2%`;
         } else {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
-        
+        */
         for (let zone in zones) {
             if (zones[zone]['JUNCTIONS'].includes(tanks[tank][0])) {
                 downNode = zone;
@@ -710,8 +755,8 @@ let createSchematicDict = function () {
         schematicDict['TANKS'][tanks[tank][0]] = {
             'UpNode': upNode,
             'DownNode': downNode,
-            'x': xLoc,
-            'y': `${(95 / numTanks) * (parseFloat(tank) + 1)}%`,
+            //'x': xLoc,
+            //'y': `${(95 / numTanks) * (parseFloat(tank) + 1)}%`,
             'size': 20,
             'elev': elev,
             'type': 'TANK'
@@ -727,15 +772,16 @@ let createSchematicDict = function () {
         //let pipeDown = pipes.find(row => row[2] === reservoirs[reservoir][0]) || null;
 
         elev = parseFloat(reservoirs[reservoir][1]);
-
+        /*
         if (elev < pageMinElev) {
             xLoc = `2%`;
         } else {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
-
+        */
         for (let zone in zones) {
             if (zones[zone]['JUNCTIONS'].includes(reservoirs[reservoir][0])) {
+                console.log(`${reservoirs[reservoir][0]}: ${zone}`)
                 downNode = zone;
             }
         }
@@ -743,8 +789,8 @@ let createSchematicDict = function () {
         schematicDict['RESERVOIRS'][reservoirs[reservoir][0]] = {
             'UpNode': upNode,
             'DownNode': downNode,
-            'x': xLoc,
-            'y': `${(95 / numRes) * (parseFloat(reservoir) + 1)}%`,
+            //'x': xLoc,
+            //'y': `${(95 / numRes) * (parseFloat(reservoir) + 1)}%`,
             'size': 30,
             'elev': elev,
             'type': 'RESERVOIR'
@@ -755,17 +801,17 @@ let createSchematicDict = function () {
         upNode = null;
         downNode = null;
 
-        let numValves = valves.length;
+        //let numValves = valves.length;
         upElev = junctions.find(row => row[0] === valves[valve][1]) || null;
         downElev = junctions.find(row => row[0] === valves[valve][2]) || null;
         elev = (parseFloat(upElev[1]) + parseFloat(downElev[1])) / 2;
-
+        /*
         if (elev < pageMinElev) {
             xLoc = `2%`;
         } else {
             xLoc = `${2 + (elev - pageMinElev) * (93) / (pageMaxElev - pageMinElev)}%`;
         }
-
+        */
         for (let zone in zones) {
             if (zones[zone]['JUNCTIONS'].includes(valves[valve][1])) {
                 upNode = zone;
@@ -778,8 +824,8 @@ let createSchematicDict = function () {
         schematicDict['VALVES'][valves[valve][0]] = {
             'UpNode': upNode,
             'DownNode': downNode,
-            'x': xLoc,
-            'y': `${(95 / numValves) * (parseFloat(valve) + 1)}%`,
+            //'x': xLoc,
+            //'y': `${(95 / numValves) * (parseFloat(valve) + 1)}%`,
             'size': 10,
             'elev': elev,
             'type': valves[valve][4]
@@ -787,16 +833,111 @@ let createSchematicDict = function () {
     }
 }
 
-let mapSchematic = function (zones) {
+
+
+
+
+
+
+/*
+// Function to calculate horizontal positions
+function calculatePositions(data) {
+    const positions = {};
+    const nodes = {};
+    let currentX = 0;
+
+    // Helper function to assign initial positions for nodes
+    const assignNodePosition = (node) => {
+        if (!nodes[node]) {
+            nodes[node] = currentX;
+            currentX += 100 / Object.keys(data).length; // Spacing based on number of nodes
+        }
+    };
+
+    // Step 1: Assign positions to zones and groups
+    Object.values(data).forEach((category) => {
+        Object.values(category).forEach((element) => {
+            assignNodePosition(element.UpNode);
+            assignNodePosition(element.DownNode);
+        });
+    });
+
+    // Step 2: Assign element positions based on UpNode and DownNode
+    Object.entries(data).forEach(([type, elements]) => {
+        Object.keys(elements).forEach((elementName) => {
+            const element = elements[elementName];
+            const upNodePos = nodes[element.UpNode] || 0;
+            const downNodePos = nodes[element.DownNode] || 100;
+            positions[elementName] = (upNodePos + downNodePos) / 2; // Midpoint between nodes
+        });
+    });
+
+    // Step 3: Normalize positions to fit between 0 and 100%
+    const minPos = Math.min(...Object.values(positions), ...Object.values(nodes));
+    const maxPos = Math.max(...Object.values(positions), ...Object.values(nodes));
+
+    Object.keys(positions).forEach((key) => {
+        positions[key] = ((positions[key] - minPos) / (maxPos - minPos)) * 100;
+    });
+    Object.keys(nodes).forEach((key) => {
+        nodes[key] = ((nodes[key] - minPos) / (maxPos - minPos)) * 100;
+    });
+
+    return { elements: positions, nodes };
+}
+*/
+
+
+
+
+
+
+
+
+let mapSchematic = function () {
     drawElevLines();
-    drawZones();
+    debugger
+    //let layoutPositions = calculatePositions(schematicDict);
 
     for (let key in schematicDict) {
-        for (let element in schematicDict[key]) {
-            console.log(`Element: ${element}, x: ${schematicDict[key][element]['x']}, y: ${schematicDict[key][element]['y']}`)
-            drawElement(schematicDict[key][element]['x'], schematicDict[key][element]['y'], schematicDict[key][element]['size'], schematicDict[key][element]['type'], schematicDict[key][element]['elev']);
+        for (let elem in schematicDict[key]) {
+            if (schematicDict[key][elem]['UpNode'] != null) {
+                zones[schematicDict[key][elem]['UpNode']]['Connectors'].push(elem);
+            }
+            if (schematicDict[key][elem]['DownNode'] != null) {
+                zones[schematicDict[key][elem]['DownNode']]['Connectors'].push(elem);
+            }
         }
     }
+
+    drawZones(layoutPositions['nodes']);
+
+    /*
+    for (let key in schematicDict) {
+        for (let element in schematicDict[key]) {
+
+            let y = pageMinPercent + (schematicDict[key][element]['elev'] - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
+
+            drawElement(y, layoutPositions['elements'][element], schematicDict[key][element]['size'], schematicDict[key][element]['type'], element);
+        }
+    }
+    debugger
+    for (let key in schematicDict) {
+        for (let element in schematicDict[key]) {
+            for (let node of ['UpNode', 'DownNode']) {
+                if (schematicDict[key][element][node] != null) {
+                    let zone = schematicDict[key][element][node];
+                    console.log(zone);
+                    let y0 = pageMinPercent + (parseFloat(schematicDict[key][element]['elev']) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
+                    let y1 = pageMinPercent + (((parseFloat(zones[zone]['MaxElev']) + parseFloat(zones[zone]['MinElev'])) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
+                    let x0 = layoutPositions['elements'][element];
+                    let x1 = layoutPositions['nodes'][zone];
+                
+                    drawLine(x0, y0, x1, y1);
+                }
+            }
+        }
+    }*/
 }
 
 let setSchematicEventListeners = function () {
@@ -804,9 +945,6 @@ let setSchematicEventListeners = function () {
         modelText = await handleFile();
         modelDict = createModelDict(modelText);
         [maxElevVar, minElevVar] = getMinMax(modelDict);
-        
-        pageMaxElev = maxElevVar;
-        pageMinElev = minElevVar;
 
         zones = assignZones();
 
