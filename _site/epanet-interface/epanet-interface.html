@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>EPANET Interface</title>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6030531277728594" crossorigin="anonymous"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Stylesheets -->
+    
+      
+          
+          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="" crossorigin="anonymous">
+        
+      
+        
+          <link rel="stylesheet" href="/epanet-interface/css/epanet-interface.css">
+        
+      
+    
+
+    <link rel="stylesheet" href="/assets/default.css">
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+
+    
+      
+        
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+        
+      
+        
+          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="" crossorigin="anonymous"></script>
+        
+      
+        
+          <script src="/epanet-interface/js/epanet-interface.js"></script>
+        
+      
+    
+
+
+  </head>
+  <body>
+    <div id="main-div">
+      <!-- Navigation Bar -->
+      <nav id="nav-bar">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="/index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="/mannings/mannings.html" class="nav-link">Manning's Calculator</a>
+          </li>
+          <li class="nav-item">
+            <a href="/normaldepth/normaldepth.html" class="nav-link">Normal/Critical Depth</a>
+          </li>
+          <li class="nav-item">
+            <a href="/linearinterpolation/linearinterpolation.html" class="nav-link">Linear Interpolation</a>
+          </li>
+          <li class="nav-item">
+            <a href="/epanet-shematic/epanet-schematic.html" class="nav-link">EPANET Schematic</a>
+          </li>
+          <li class="nav-item">
+            <a href="/epanet-interface/epanet-interface.html" class="nav-link">EPANET Interface</a>
+          </li>
+          <li class="nav-item">
+            <a href="/whiteboard/whiteboard.html" class="nav-link">Whiteboard</a>
+          </li>
+        </ul>
+      </nav>
+      
+
+      <!-- Ad Bar -->
+      <div id="add-bar"></div>
+
+      <!-- Main Content Area -->
+      <!--<div id="openPopup"><i class="fas fa-chart-line"></i></div>-->
+      <div id="mainscreen-div">
+        <!-- Popup window -->
+<div id="message-window">
+  <h3 id="message-text"></h3>
+  <button id="message-ok">OK</button>
+</div>
+
+<div id="popup">
+  <h3>CRS Details</h3>
+  <label for="epsg">EPSG Code:</label>
+  <input type="text" id="epsg" placeholder="Enter EPSG Code to Search for the Proj String" />
+  <button id="get-proj-btn">Get Proj String</button>
+
+  <label for="proj">Proj String:</label>
+  <input type="text" id="proj" placeholder="Or Enter the Proj String" />
+
+  <button id="popup-ok">OK</button>
+</div>
+
+<div id="interface-mainscreen">
+    <div id="interface-navbar">
+      <button id="load-file-btn">Load File</button>
+      <input type="file" id="file-input" accept=".inp" style="display: none;" />
+      <button id="crs-btn">CRS</button>
+    </div>
+    <div id="map">
+    </div>
+</div>
+
+
+      </div>
+
+      <!-- Popup -->
+      <div id="overlay" class="overlay"></div>
+      <div id="popup" class="popup">
+          <div class="popup-header">
+              <span class="close-btn" id="closePopup">&times;</span>
+          </div>
+          <div class="popup-content">
+            <div id="plot"></div>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

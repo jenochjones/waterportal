@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ page.title | default: "Water Engineering Portal" }}</title>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6030531277728594" crossorigin="anonymous"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Stylesheets -->
+    {% if page.stylesheets %}
+      {% for stylesheet in page.stylesheets %}
+        {% if stylesheet contains "integrity" and stylesheet contains "crossorigin" %}  
+          <link rel="stylesheet" href="{{ stylesheet.href | relative_url }}" integrity="{{ stylesheet.integrity }}" crossorigin="{{ stylesheet.crossorigin }}">
+        {% else %}
+          <link rel="stylesheet" href="{{ stylesheet.href | relative_url }}">
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    <link rel="stylesheet" href="{{ '/assets/default.css' | relative_url }}">
+    <link rel="icon" type="image/png" href="{{ '/assets/favicon.png' | relative_url }}">
+
+    {% if page.javascript %}
+      {% for js in page.javascript %}
+        {% if js contains "integrity" and js contains "crossorigin" %}
+          <script src="{{ js.src | relative_url }}" integrity="{{ js.integrity }}" crossorigin="{{ js.crossorigin }}"></script>
+        {% else %}
+          <script src="{{ js.src | relative_url }}"></script>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+
+  </head>
+  <body>
+    <div id="main-div">
+      <!-- Navigation Bar -->
+      <nav id="nav-bar">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="{{ 'index.html' | relative_url }}" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ 'mannings/mannings.html' | relative_url }}" class="nav-link">Manning's Calculator</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ 'normaldepth/normaldepth.html' | relative_url }}" class="nav-link">Normal/Critical Depth</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ 'linearinterpolation/linearinterpolation.html' | relative_url }}" class="nav-link">Linear Interpolation</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ 'epanet-shematic/epanet-schematic.html' | relative_url }}" class="nav-link">EPANET Schematic</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ 'epanet-interface/epanet-interface.html' | relative_url }}" class="nav-link">EPANET Interface</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ 'whiteboard/whiteboard.html' | relative_url }}" class="nav-link">Whiteboard</a>
+          </li>
+        </ul>
+      </nav>
+      
+
+      <!-- Ad Bar -->
+      <div id="add-bar"></div>
+
+      <!-- Main Content Area -->
+      <!--<div id="openPopup"><i class="fas fa-chart-line"></i></div>-->
+      <div id="mainscreen-div">
+        {{ content }}
+      </div>
+
+      <!-- Popup -->
+      <div id="overlay" class="overlay"></div>
+      <div id="popup" class="popup">
+          <div class="popup-header">
+              <span class="close-btn" id="closePopup">&times;</span>
+          </div>
+          <div class="popup-content">
+            <div id="plot"></div>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

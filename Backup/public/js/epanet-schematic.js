@@ -184,10 +184,10 @@ function drawElement(x, y, size, element, id) {
 
 
 
-let drawZones = function (nodePositions) {
-    let numZones = Object.values(zones).filter(group => group.IsZone === 'Yes').length;
-    let count = 1;
-    let zoneWidth = 8;
+let drawZones = function () {
+    let numZones = Object.values(zones).length * 2;
+    let count = 0;
+    let zoneWidth = (100 - 10) / numZones;
     let x;
     
     const mainWindow = document.getElementById('schematic-main-window');
@@ -197,32 +197,43 @@ let drawZones = function (nodePositions) {
     }
 
     for (let zone in zones) {
+        
+        let maxElev = parseFloat(zones[zone]['MaxElev']);
+        let minElev = parseFloat(zones[zone]['MinElev']);
+        //x = nodePositions[zone];
+        const newDiv = document.createElement('div');
+
         if (zones[zone]['IsZone'] === 'Yes') {
-            let maxElev = parseFloat(zones[zone]['MaxElev']);
-            let minElev = parseFloat(zones[zone]['MinElev']);
-            x = nodePositions[zone];
-            if (zones[zone]['IsZone'] === 'Yes') {
-                //let x = (((120 / (numZones + 1)) * (count) - 20) + zoneWidth) / 2;
-                //let y = pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
-                
-                //zones[zone]['X'] = x;
-                //zones[zone]['Y'] = y;
-                const newDiv = document.createElement('div');
+            //let x = (((120 / (numZones + 1)) * (count) - 20) + zoneWidth) / 2;
+            //let y = pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
+            
+            //zones[zone]['X'] = x;
+            //zones[zone]['Y'] = y;
+            
 
-                // Set class and inline styles
-                newDiv.classList.add('schematic-zone');
-                newDiv.style.left = `${x}%`;
-                newDiv.style.bottom = `${pageMinPercent + (minElev - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev)}%`;
-                newDiv.style.top = `${100 - (pageMinPercent + (maxElev - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev))}%`;
-                newDiv.style.width = `${zoneWidth}%`;
+            // Set class and inline styles
+            newDiv.classList.add('schematic-zone');
+            newDiv.style.left = `${10 + (zoneWidth * count)}%`;
+            newDiv.style.bottom = `${pageMinPercent + (minElev - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev)}%`;
+            newDiv.style.top = `${100 - (pageMinPercent + (maxElev - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev))}%`;
+            newDiv.style.width = `${zoneWidth}%`;
 
-                // Set innerHTML to zone
-                newDiv.textContent = zone;
+            // Set innerHTML to zone
+            newDiv.textContent = zone;            
+        } else {
+            
+            //zones[group]['X'] = xAvg;
+            
+            //zones[group]['Y'] = pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
 
-                mainWindow.appendChild(newDiv);
-                count += 1;
-            }
+            newDiv.classList.add('schematic-group-zone');
+            newDiv.style.left = `${x}%`;
+            newDiv.style.bottom = `${pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev)}%`;
+            
+            newDiv.innerHTML = group;        
         }
+        mainWindow.appendChild(newDiv);
+        count += 1;
     }
 
     for (let group in zones) {
@@ -258,18 +269,7 @@ let drawZones = function (nodePositions) {
                 xAvg = xAvg / zCount;
             }
             */
-            const newDiv = document.createElement('div');
-            //zones[group]['X'] = xAvg;
             
-            //zones[group]['Y'] = pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev);
-
-            newDiv.classList.add('schematic-group-zone');
-            newDiv.style.left = `${x}%`;
-            newDiv.style.bottom = `${pageMinPercent + (((maxElev + minElev) / 2) - pageMinElev) * (pageMaxPercent - pageMinPercent) / (pageMaxElev - pageMinElev)}%`;
-            
-            newDiv.innerHTML = group;
-
-            mainWindow.appendChild(newDiv);
         }
     }
 }
@@ -910,7 +910,7 @@ let mapSchematic = function () {
         }
     }
 
-    drawZones(layoutPositions['nodes']);
+    drawZones();
 
     /*
     for (let key in schematicDict) {

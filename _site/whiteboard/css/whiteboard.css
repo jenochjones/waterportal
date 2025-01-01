@@ -1,0 +1,32 @@
+#whiteboard-div {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 4em);
+    background-color: lightblue;
+}
+
+#whiteboard-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#whiteboard-controls {
+    height: 4em;
+    width: 100%;
+    background-color: lightblue;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.whiteboard-btn {
+    width: 10em;
+    height: 3em;
+    background-color: blue;
+    color: white;
+}
+
+.whiteboard-btn:hover {
+    background-color: rgb(98, 98, 247);
+}

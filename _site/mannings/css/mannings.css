@@ -1,0 +1,52 @@
+#mannings-equation {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+#mannings-graph {
+  width: 80%;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#mannings-graph-values {
+  width: 10%;
+  height: 70%;
+  padding: 1em;
+}
+
+#mannings-x-y-coords {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+#mannings-plot-button {
+  width: 110%;
+  height: 4em;
+  border-radius: 0;
+  color: white;
+  background-color: #12436a;
+}
+
+#mannings-graph-box {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+#mannings-values {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

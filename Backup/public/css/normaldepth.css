@@ -1,0 +1,81 @@
+#normal-critical-depth {
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    height: auto;
+    border-style: solid;
+    padding:10px;
+    border-color: white;
+    background-color: rgba(0, 15, 160, 0.4);
+}
+
+#normal-critical-depth input {
+    width: 50px;
+    float: right;
+    margin: 2px;
+}
+
+#normal-critical-depth select {
+    width: 100px;
+    float: right;
+    margin: 2px;
+}
+
+#normal-critical-depth label {
+    margin: 2px;
+}
+
+#nc-result-div p {
+    color: white;
+    margin: 2px 5px 2px 20px;
+}
+
+#solve-for-container {
+  width: 100%;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+#solve-for {
+  width: 50%;
+  height: 20px;
+  text-align-last: center;
+  margin: 5px;
+}
+
+#units {
+  width: 20%;
+  height: 20px;
+  text-align-last: center;
+  margin: 5px;
+}
+
+.value-slider-box {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider {
+  width: 75%;
+}
+
+.slider-box {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-value {
+  width: 60px;
+}
+
+

@@ -3,6 +3,7 @@ import { setUpNormalDepth } from './normaldepth.js';
 import { setUpWhiteboard } from './whiteboard.js';
 import { setUpMannings } from './mannings.js';
 import { setSchematicEventListeners } from './epanet-schematic.js';
+import { setInterfaceEventListeners } from './epanet-interface.js';
 
 const htmlElements = {
     'home.html': NaN,
@@ -10,6 +11,7 @@ const htmlElements = {
     'linearinterpolation.html': setUpLinearInterpolation,
     'normaldepth.html': setUpNormalDepth,
     'epanet-schematic.html': setSchematicEventListeners,
+    'epanet-interface.html': setInterfaceEventListeners,
     'whiteboard.html': setUpWhiteboard,
 };
 

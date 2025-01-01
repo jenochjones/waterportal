@@ -1,0 +1,151 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    background: url("water.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+  
+#main-div {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#mainscreen-div {
+    width: calc(100% - 300px);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nav Bar Container */
+#nav-bar {
+    position: absolute;
+    top: 0;
+    bottom: 250px;
+    right: 0;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    background-color: #303038;
+    overflow-y: scroll;
+}
+
+.nav-list {
+    list-style: none; 
+    margin: 0; 
+    padding: 0;
+  }
+  
+
+.nav-item {
+    margin: 0; 
+    width: 100%; 
+    height: auto; 
+    padding: 10px 0px 10px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link {
+    color: #fff; 
+    text-decoration: none;
+    font-weight: bold; 
+    padding: 5px 10px; 
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-item:hover {
+    background-color: #555; 
+    border-radius: 4px; 
+}  
+
+#add-bar {
+    position: absolute;
+    top: calc(100% - 250px);
+    bottom: 0;
+    right: 0;
+    width: 300px;
+    background-color: #dbe827;
+}
+
+#openPopup {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    width: 2em;
+    height: 2em;
+}
+
+#openPopup i {
+    font-size: 2em;
+    color: #333;
+}
+
+b {
+    color: white;
+    padding: 10px;
+}
+
+label {
+    color: white;
+}
+
+
+
+.add-banner {
+    color: yellow;
+    width: 100%;
+    height: 90px;
+}
+
+h2 {
+  color: white;
+  font-family: "American Typewriter";
+  font-size: 15pt;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #888;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.popup-header .close-btn {
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
