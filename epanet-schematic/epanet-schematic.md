@@ -2,9 +2,9 @@
 layout: default
 title: EPANET Schematic
 stylesheets:
-  - href: "epanet-shematic/css/epanet-schematic.css"
+  - href: "epanet-schematic/css/epanet-schematic.css"
 javascript: 
-  - src: "epanet-shematic/js/epanet-schematic.js"
+  - src: "epanet-schematic/js/epanet-schematic.js"
 ---
  
  <div id="schematic-mainscreen">
@@ -41,4 +41,3 @@ javascript:
         </div>
     </div>
 </div>
-
