@@ -977,4 +977,3 @@ let setSchematicEventListeners = function () {
 
     document.getElementById('schematic-logo').addEventListener('click', handleFileUpload);
 }
-
